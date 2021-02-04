@@ -8,11 +8,11 @@ Created on Thu Feb  4 09:09:13 2021
 @brief      <b> ... </b> \n
 @details    ...
 """
-
+from pyb import I2C
 
 class MCP9808:
     '''
-    @brief      <b> MCP9808 temperature sensor class </b> \n
+    @brief      <b> MCP9808 temperature sensor breakout board class </b> \n
     @details    ...
     '''
     
@@ -23,11 +23,15 @@ class MCP9808:
         @param i2cObject    The I2C communication protocol object which is to be used for communication between the NUCLEO MCU and MCP9808 temperature sensor
         @param address      The I2C bus address of the MCP9808 temperature sensor 
         '''
-    
+        
+        ## Define class-specific I2C object from user-specified I2C object
         self.i2c = i2cObject
         
-        self.mcp = address
-    
+        ## Define I2C bus address for MCP9808 from user-specified address
+        self.address = address
+        
+        ## Construct I2C object for communication with MCP9808
+        self.i2c.init(I2C.MASTER)
     
     
     
@@ -37,8 +41,10 @@ class MCP9808:
         @details    ...
         '''
         
-        self.i2c.is_ready()
-        
+        if self.i2c.is_ready(self.address):
+            print('Address verified')
+        else:
+            print('Unable to verify address')
         
         
     def celsius(self):
