@@ -51,6 +51,12 @@ class MCP9808:
         @brief      <b> Return measured temperature in degrees Celcius </b> \n
         @details    ...
         '''
+        # Read raw temp data from sensor via I2C
+        rawTemp = self.i2c.mem_read(2,addr=self.address,memaddr=5)
+        # Convert raw temp data from bytes to integer value
+        Temp = int.from_bytes(rawTemp,"big")
+        
+        return(Temp)
         
     def fahrenheit(self):
         '''
@@ -58,6 +64,15 @@ class MCP9808:
         @details    ...
         '''
         
+        # Read raw temp data from sensor via I2C
+        rawTemp = self.i2c.mem_read(2,addr=24,memaddr=5)
+        # Convert raw temp data from bytes to integer value
+        Temp = int.from_bytes(rawTemp,"big")
+        # Convert temperature reading from degC to degF
+        Temp = (Temp*1.8) + 32
+        
+        return(Temp)
+    
  
 if __name__ == '__main__':
     # Test code
