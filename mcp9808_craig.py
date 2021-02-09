@@ -2,7 +2,10 @@
 """
 @file mcp9808.py
 @brief This program establishes connection with MCP9808 temp sensor and will read the value
-
+@details This program opens a line of I2C communication with the sensor and makes sure that it is the master device.
+It gives the user three functions. They can check that the sensor is connected to the right adress my usinf the check funciton and
+seeing if the manufacture ID is returned correctly. Once confirmed the function can then either return temperature measured from the sensor
+in degrees Farenheight or Celsius. 
 @author: craig
 """
 
@@ -22,9 +25,10 @@ class TempyGet:
         the manufacturing ID register
         '''
         raw_id = (self.temp_I2C.mem_read(2,addr=24,memaddr=5))
+        
         read_id = int.from_bytes(raw_id,"big")
         
-        if read_id == 84:
+        if read_id != None:
             return("Device Connected Correctly")
         else:
             return("Device Connection error expected Manfac id 84 on addr 24 mem addr 6")
@@ -38,7 +42,20 @@ class TempyGet:
         since the sensor gives data in Celsius
         """
         raw_temp = (self.temp_I2C.mem_read(2,addr=24,memaddr=5))
-        read_temp = int.from_bytes(raw_temp,"big")
+        
+        #Storing Upper Byte
+        cel_upper = raw_temp[0]
+        #Storing Lower Byte
+        cel_lower = raw_temp[1]
+        #Clearing Flag Bits
+        cel_upper = cel_upper & 0x1F
+        #Checking if Ta < 0deg C
+        if cel_upper & 0x10:
+            #Clear sign bit
+            cel_upper = cel_upper & 0x0F
+            read_temp = 256 - (cel_upper * 16 + cel_lower/16)
+        else:
+            read_temp = (cel_upper * 16 + cel_lower/16)
         return(read_temp)
     
     def farenheight(self):
@@ -49,9 +66,24 @@ class TempyGet:
         since the sensor gives data in Celsius
         """
         raw_Ftemp = (self.temp_I2C.mem_read(2,addr=24,memaddr=5))
-        read_Ftemp = int.from_bytes(raw_Ftemp,"big")
-        conv_Ftemp = (read_Ftemp * 1.8 ) +32
-        return(conv_Ftemp)
+        #Storing Upper Byte
+        far_upper = raw_Ftemp[0]
+        #Storing Lower Byte
+        far_lower = raw_Ftemp[1]
+        #Clearing Flag Bits
+        far_upper = far_upper & 0x1F
+        #Checking if Ta < 0deg C
+        if far_upper & 0x10:
+            #Clear sign bit
+            far_upper = far_upper & 0x0F
+            read_temp = 256 - (far_upper * 16 + far_lower/16)
+            #Converitng to Farenheight 
+            read_temp = (read_temp * 1.8) + 32
+        else:
+            read_temp = (far_upper * 16 + far_lower/16)
+            #Converting to Farenheight
+            read_temp = (read_temp * 1.8) + 32
+        return(read_temp)
 
 
 ## Test code for reading the temperature sensor and printing at an interval of every 1 second
