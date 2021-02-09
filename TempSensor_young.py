@@ -23,7 +23,7 @@ with open ("InternalTemp.ext","w") as file:
         # Sleep some amount of time
         utime.sleep(10)
         # Update temperature measurement
-        temp = adc.read_channel(16)
+        temp = adc.read_core_temp()
         # Add this measurement as a new line in the file
         file.write('{:}\r\n'.format(temp))
     

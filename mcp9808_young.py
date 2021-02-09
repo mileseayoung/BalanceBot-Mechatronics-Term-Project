@@ -34,7 +34,6 @@ class MCP9808:
         self.i2c.init(I2C.MASTER)
     
     
-    
     def check(self):
         '''
         @brief      <b> Verify sensor address </b> \n
