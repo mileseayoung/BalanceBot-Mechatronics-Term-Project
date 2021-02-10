@@ -53,7 +53,7 @@ time = utime.ticks_diff(currTime,startTime)
 interval = 60
 
 ## Define run counter to keep track of temperature collection iterations
-run = 0
+run = 1
 
 # OPERATIONAL CODE
 
@@ -76,20 +76,22 @@ with open ("Temperature.csv","w") as file:
             # Update NUCLEO internal temperature measurement
             inTemp = adc.read_core_temp()
             # Print temp for debugging purposes
-            print('Internal Temp: ' + str(inTemp) + ' degC')
+            #print('Internal Temp: ' + str(inTemp) + ' degC')
             # Update the external temperature measurement from the MCP9808 sensor
             exTemp = mcp.celsius()
             # Print temp for debugging purposes
-            print('External Temp: ' + str(exTemp) + ' degC')
+            #print('External Temp: ' + str(exTemp) + ' degC')
             # Calculate time from beginning of data collection
             time = utime.ticks_diff(currTime,startTime)
             # Add time, internal temperature, and external temperature measurements as a new line in the file
             file.write('{:},{:.2f},{:.2f}\n'.format(time,inTemp,exTemp))
+            # Print values to terminal so progress can be observed
+            print('Completion {:.2f}: {:.2f},{:.2f}'.format(run/480,inTemp,exTemp))
             # Update run counter
             run += 1
             
             # Break data collection loop if enough runs have been completed
-            if run >= 480:
+            if run > 480:
                 break
             
         except KeyboardInterrupt:
