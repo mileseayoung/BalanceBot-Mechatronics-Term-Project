@@ -26,19 +26,26 @@ interval = 60000
 ## Define variable to hold updated current time
 currTime = utime.ticks_ms()
 
-## Define variable to 
+## Define run counter to keep track of temperature collection iterations
+run = 0
 
 with open ("InternalTemp.ext","w") as file:
     # Open file in which to record internal temperature measurements for NUCLEO
-    try:
-        # Sleep some amount of time
-        utime.sleep(5)
-        # Update temperature measurement
-        temp = adc.read_core_temp()
-        # Add this measurement as a new line in the file
-        file.write('{:}\r\n'.format(temp))
     
-    except KeyboardInterrupt:
-        # Close the file to avoid loss of stored measurements
-        file.close()
+    while True:
+        try:
+            # Sleep some amount of time
+            utime.sleep(60)
+            # Update current time
+            currTime = utime.ticks_ms()
+            # Calculate time since beginning data measurement
+            time = utime.ticks_diff(currTime,startTime)
+            # Update temperature measurement
+            temp = adc.read_core_temp()
+            # Add this measurement as a new line in the file
+            file.write('{:},{:}\r\n'.format(time,temp))
+        
+        except KeyboardInterrupt:
+            # Close the file to avoid loss of stored measurements
+            ('Data collection terminated early'+'\r\n'+'File will close to avoid loss of data')
     
