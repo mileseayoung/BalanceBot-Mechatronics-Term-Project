@@ -56,9 +56,9 @@ class MCP9808:
         '''
         
         if self.i2c.is_ready(self.address):
-            print('Address verified')
+            print('Address ' + str(self.address) + ' verified')
         else:
-            print('Unable to verify address')
+            print('Unable to verify address ' + str(self.address))
         
         
     def celsius(self):
