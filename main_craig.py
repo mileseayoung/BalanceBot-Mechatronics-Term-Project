@@ -33,6 +33,8 @@ else:
 runs = 0
 pinA5.high()
 with open ("temperature_recording.csv", "w") as log_file:
+    file.write('Time [ms],Internal Temperature [degC], External Temperature [degC]\n')
+    
     try:
         while True:
           
@@ -45,7 +47,7 @@ with open ("temperature_recording.csv", "w") as log_file:
             print(senso_temp)
             runs += 1
             #Writing the last entry to the file. Using runs as a timer
-            log_file.write ("{:},{:},{:}\r\n".format(runs,core_temp,senso_temp))
+            log_file.write ("{:},{:},{:}\n".format(runs,core_temp,senso_temp))
             
               
             
