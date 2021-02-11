@@ -2,7 +2,7 @@
 """
 Created on Thu Feb  4 09:36:28 2021
 
-@file main_young.py
+@file       main_young.py
 @author     Miles Young
 @date       02/4/2021
 @brief      <b> Temperature Collection Main Script </b> \n
@@ -55,6 +55,9 @@ interval = 60
 ## Define run counter to keep track of temperature collection iterations
 run = 1
 
+## Define a limit for runs after which to end data collection (only valid for timed data collection)
+#runLimit = 480
+
 # OPERATIONAL CODE
 
 # Check whether a valid I2C connection has been made
@@ -85,14 +88,14 @@ with open ("Temperature.csv","w") as file:
             time = utime.ticks_diff(currTime,startTime)
             # Add time, internal temperature, and external temperature measurements as a new line in the file
             file.write('{:},{:.2f},{:.2f}\n'.format(time,inTemp,exTemp))
-            # Print values to terminal so progress can be observed
-            print('Completion {:.1f}%: {:.2f},{:.2f}'.format((run/480)*100,inTemp,exTemp))
+            # Print values to terminal so progress can be observed (only valid for timed data collection)
+            #print('Completion {:.1f}%: {:.2f},{:.2f}'.format((run/runLimit)*100,inTemp,exTemp))
             # Update run counter
             run += 1
             
-            # Break data collection loop if enough runs have been completed
-            if run > 480:
-                break
+            # Break data collection loop if enough runs have been completed (only valid for timed data collection)
+            #if run > runLimit:
+                #break
             
         except KeyboardInterrupt:
             # Close the file to avoid loss of stored measurements

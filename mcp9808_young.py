@@ -11,6 +11,7 @@ Created on Thu Feb  4 09:09:13 2021
             code which initiate only when the script is run independently.
 """
 from pyb import I2C
+import utime
 
 class MCP9808:
     '''
@@ -155,9 +156,12 @@ if __name__ == '__main__':
     mcp = MCP9808(i2c,address)
     # Check if valid connection has been made
     mcp.check()
-    # Test temp reading in degC
-    print(str(mcp.celsius()))
-    # test temp reading in degF
-    print(str(mcp.fahrenheit()))
+    
+    while True:
+        # Delay one second
+        utime.sleep(1)
+        # Test temp reading
+        print('Temperature: ' + str(mcp.celsius()) + ' degC, or ' + str(mcp.fahrenheit()) + ' degF')
+        
     
     
