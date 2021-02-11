@@ -86,7 +86,7 @@ with open ("Temperature.csv","w") as file:
             # Add time, internal temperature, and external temperature measurements as a new line in the file
             file.write('{:},{:.2f},{:.2f}\n'.format(time,inTemp,exTemp))
             # Print values to terminal so progress can be observed
-            print('Completion {:.2f}: {:.2f},{:.2f}'.format(run/480,inTemp,exTemp))
+            print('Completion {:.1f}%: {:.2f},{:.2f}'.format((run/480)*100,inTemp,exTemp))
             # Update run counter
             run += 1
             
