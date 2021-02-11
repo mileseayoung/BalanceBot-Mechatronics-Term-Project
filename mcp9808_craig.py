@@ -6,7 +6,8 @@
 It gives the user three functions. They can check that the sensor is connected to the right adress my usinf the check funciton and
 seeing if the manufacture ID is returned correctly. Once confirmed the function can then either return temperature measured from the sensor
 in degrees Farenheight or Celsius. 
-@author: craig
+Source Code: https://bitbucket.org/MilesYoung/lab-4/src/master/mcp9808_craig.py
+@author: Craig Kimball
 """
 
 import pyb
@@ -14,7 +15,12 @@ from pyb import I2C
 
 
 class TempyGet:
-    
+    """
+    @brief: This Class controls communication with the MCP9808 temperature sensor. It will allow the user to receive temperature readings from the sensor.
+    @details Using I2C communication this class opens communication on Bus 1 between Nucleo and sensor. The Class has three methods. The Check()
+    method looks for the manufacturer ID of the sensor and compares it to a stored ID number. If it matches this confirms the device is connected properly.
+    The celsius() and farenheight() method return temperatures in celsius and farenheight respectively.
+    """
     def __init__(self):
         self.temp_I2C = pyb.I2C(1,pyb.I2C.MASTER)
     
@@ -24,14 +30,14 @@ class TempyGet:
         @details this module will check the sensor is connected properly by checking the value in
         the manufacturing ID register
         '''
-        raw_id = (self.temp_I2C.mem_read(2,addr=24,memaddr=5))
+        raw_id = (self.temp_I2C.mem_read(2,addr=24,memaddr=6))
         
-        read_id = int.from_bytes(raw_id,"big")
+        read_id = raw_id[1]
         
-        if read_id != None:
-            return("Device Connected Correctly")
+        if read_id == 84:
+            return(True)
         else:
-            return("Device Connection error expected Manfac id 84 on addr 24 mem addr 6")
+            return(False)
         #Code for checking this will be written when the sensor arrives
         
     def celsius(self):
