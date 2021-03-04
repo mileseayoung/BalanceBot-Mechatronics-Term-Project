@@ -10,10 +10,11 @@ class MotorDriver:
  ''' This class implements a motor driver for the
  ME405 board. '''
 
- def __init__ (self, nSLEEP_pin, IN1_pin, IN2_pin, timer):
+ def __init__ (self, nSLEEP_pin, nFAULT_pin, IN1_pin, IN2_pin, timer):
     ''' Creates a motor driver by initializing GPIO
      pins and turning the motor off for safety.
      @param nSLEEP_pin A pyb.Pin object to use as the enable pin.
+     @param nFAULT_pin A pyb.Pin object to detect faults and trigger an external interrupt. It must be configured like this: pyb.Pin(pyb.Pin.cpu.[pinNum], mode = IN, pull = pyb.Pin.PULL_UP)
      @param IN1_pin A pyb.Pin object to use as the input to half bridge 1.
      @param IN2_pin A pyb.Pin object to use as the input to half bridge 2.
      @param timer A pyb.Timer object to use for PWM generation on
@@ -71,4 +72,19 @@ class MotorDriver:
  @param duty A signed integer holding the duty
  cycle of the PWM signal sent to the motor '''
 
- 
+def faultInterrupt(self,fault_pin):
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
