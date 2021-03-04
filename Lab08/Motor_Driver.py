@@ -14,7 +14,7 @@ class MotorDriver:
     ''' Creates a motor driver by initializing GPIO
      pins and turning the motor off for safety.
      @param nSLEEP_pin A pyb.Pin object to use as the enable pin.
-     @param nFAULT_pin A pyb.Pin object to detect faults and trigger an external interrupt. It must be configured like this: pyb.Pin(pyb.Pin.cpu.[pinNum], mode = IN, pull = pyb.Pin.PULL_UP)
+     @param nFAULT_pin A pyb.Pin object to detect faults and trigger an external interrupt. It must be configured like this: pyb.Pin(pyb.Pin.cpu.[pinNum])
      @param IN1_pin A pyb.Pin object to use as the input to half bridge 1.
      @param IN2_pin A pyb.Pin object to use as the input to half bridge 2.
      @param timer A pyb.Timer object to use for PWM generation on
@@ -25,6 +25,8 @@ class MotorDriver:
     self.IN2_pin    = IN2_pin
     self.timer      = timer
    
+    # Initialize fault pin to function with external interrupt method
+    self.nFault_Pin = nFAULT_pin.init(pyb.ExtInt.IRQ_FALLING,pyb.Pin.PULL_UP,faultInterrupt)
     
     ## setting up the channel 4 for PWM on the motors
     self.t3ch2 = self.timer.channel(4,pyb.Timer.PWM,pin = self.IN2_pin)
@@ -73,6 +75,28 @@ class MotorDriver:
  cycle of the PWM signal sent to the motor '''
 
 def faultInterrupt(self,fault_pin):
+    '''
+    External interrupt method which is triggered when the motor H-bridge fault pin goes low.
+    '''
+    
+    # Immediately disable the motor
+    self.disable()
+    
+    # Prompt user input before clearing fault
+    cmd = input("Fault detected: Press 'f' to clear and resume functioning")
+    # Proceed based on user input
+    while True:
+        if cmd == 'f':
+            # Clear cmd variable
+            cmd = None
+            # Automatically re-enable the motor
+            self.enable()
+            break
+        else:
+            cmd = None
+            cmd = input("Non-meaningful input detected: Press 'f' to clear fault and resume functioning")
+    
+    
     
     
     
