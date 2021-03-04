@@ -10,28 +10,40 @@ class MotorDriver:
  ''' This class implements a motor driver for the
  ME405 board. '''
 
- def __init__ (self, nSLEEP_pin, nFAULT_pin, IN1_pin, IN2_pin, timer):
+ def __init__ (self, motorNum, nSLEEP_pin, nFAULT_pin, IN1_pin, channel1, IN2_pin, channel2, timer):
     ''' Creates a motor driver by initializing GPIO
      pins and turning the motor off for safety.
      @param nSLEEP_pin A pyb.Pin object to use as the enable pin.
      @param nFAULT_pin A pyb.Pin object to detect faults and trigger an external interrupt. It must be configured like this: pyb.Pin(pyb.Pin.cpu.[pinNum])
      @param IN1_pin A pyb.Pin object to use as the input to half bridge 1.
+     @param channel1 A number identifier for the timer channel for pinIN1.
      @param IN2_pin A pyb.Pin object to use as the input to half bridge 2.
+     @param channel2 A number identifier for the timer channel for pinIN2
      @param timer A pyb.Timer object to use for PWM generation on
      IN1_pin and IN2_pin. 
      '''
-    self.nSleep_pin = nSLEEP_pin
-    self.IN1_pin    = IN1_pin
-    self.IN2_pin    = IN2_pin
-    self.timer      = timer
+    
+    ## Identifier for the motor object from constructor
+    self.motorNum =     motorNum
+    
+    ## Defines local object for enable pin from constructor
+    self.nSleep_pin =   nSLEEP_pin
+    
+    ## Defines local object for IN1 pin from constructor
+    self.IN1_pin    =   IN1_pin
+    
+    ## Defines local object for IN2 pin from constructor
+    self.IN2_pin    =   IN2_pin
+    
+    ## Defines local timer that will be used from constructor
+    self.timer      =   timer
    
     # Initialize fault pin to function with external interrupt method
     self.nFault_Pin = nFAULT_pin.init(pyb.ExtInt.IRQ_FALLING,pyb.Pin.PULL_UP,faultInterrupt)
     
-    ## setting up the channel 4 for PWM on the motors
-    self.t3ch2 = self.timer.channel(4,pyb.Timer.PWM,pin = self.IN2_pin)
-    ## Setting up the channel 5 for PWM on the motors
-    self.t3ch1 = self.timer.channel(3,pyb.Timer.PWM,pin = self.IN1_pin)
+    ## setting up the channels for PWM on the motors
+    self.timch2 = self.timer.channel(channel2,pyb.Timer.PWM,pin = self.IN2_pin)
+    self.timch1 = self.timer.channel(channel1,pyb.Timer.PWM,pin = self.IN1_pin)
  
 
 ## Sets the sleep pin of the motor to high
@@ -51,19 +63,19 @@ class MotorDriver:
      
      # Saturation prevention on motor. Will not let PWM go above 100%
      if (duty >= 100):
-         self.t3ch2.pulse_width_percent(100)
-         self.t3ch1.pulse_width_percent(0)
+         self.timch2.pulse_width_percent(100)
+         self.timch1.pulse_width_percent(0)
      elif(duty <= -100):
-         self.t3ch2.pulse_width_percent(0)
-         self.t3ch1.pulse_width_percent(100)
+         self.timch2.pulse_width_percent(0)
+         self.timch1.pulse_width_percent(100)
      
      if(duty >= 0):
-         self.t3ch2.pulse_width_percent(duty)
-         self.t3ch1.pulse_width_percent(0)
+         self.timch2.pulse_width_percent(duty)
+         self.timch1.pulse_width_percent(0)
      elif(duty < 0):
          duty_correct = duty *(-1)
-         self.t3ch2.pulse_width_percent(0)
-         self.t3ch1.pulse_width_percent(duty_correct)
+         self.timch2.pulse_width_percent(0)
+         self.timch1.pulse_width_percent(duty_correct)
          
          
 
