@@ -2,7 +2,7 @@
 @brief this driver controls the acuation of the motor
 @details This class allows modules to setup a motor on avaliable pins and then send 
 input duty cycles to it which will then use PWM to move the motor
-Source Code: https://bitbucket.org/CraigKimball/me305_labs/src/master/Lab06/Motor_Driver.py
+
  '''
 import pyb
 
@@ -39,7 +39,10 @@ class MotorDriver:
     self.timer      =   timer
    
     # Initialize fault pin to function with external interrupt method
-    self.nFault_Pin = nFAULT_pin.init(pyb.ExtInt.IRQ_FALLING,pyb.Pin.PULL_UP,faultInterrupt)
+    self.nFault_Pin =pyb.ExtInt (nFAULT_pin,   # Which pin
+                     pyb.ExtInt.IRQ_FALLING,       # Interrupt on falling edge
+                     pyb.Pin.PULL_NONE,             # Activate pullup resistor
+                     faultInterrupt)                   # Interrupt service routine
     
     ## setting up the channels for PWM on the motors
     self.timch2 = self.timer.channel(channel2,pyb.Timer.PWM,pin = self.IN2_pin)
@@ -50,8 +53,8 @@ class MotorDriver:
  def enable (self):
      #print ('Enabling Motor')
      self.nSleep_pin.high()
-     self.t3ch2.pulse_width_percent(0)
-     self.t3ch1.pulse_width_percent(0)
+     self.timch2.pulse_width_percent(0)
+     self.timch1.pulse_width_percent(0)
 ## sets the sleep pin of the motor to low
  def disable (self):
      print ('Disabling Motor')
@@ -60,7 +63,12 @@ class MotorDriver:
 ## sets the duty cycle of the motor.
 # This is also referred to the acuation value controlled by PWM represented as a %
  def set_duty (self, duty):
-     
+     ''' 
+     @brief This method sets the duty cycle to be sent to the motor to the given level. 
+     @details Positive values cause effort in one direction, negative values
+     in the opposite direction.
+     @param duty A signed integer holding the duty cycle of the PWM signal sent to the motor 
+     '''
      # Saturation prevention on motor. Will not let PWM go above 100%
      if (duty >= 100):
          self.timch2.pulse_width_percent(100)
@@ -79,12 +87,7 @@ class MotorDriver:
          
          
 
- ''' This method sets the duty cycle to be sent
- to the motor to the given level. Positive values
- cause effort in one direction, negative values
- in the opposite direction.
- @param duty A signed integer holding the duty
- cycle of the PWM signal sent to the motor '''
+
 
 def faultInterrupt(self,fault_pin):
     '''
@@ -109,6 +112,29 @@ def faultInterrupt(self,fault_pin):
             cmd = input("Non-meaningful input detected: Press 'f' to clear fault and resume functioning")
     
     
+if __name__ =="__main__":
+    
+    motorNum = 1
+    nSLEEP_pin = pyb.Pin(pyb.Pin.board.PA15,pyb.Pin.OUT_PP)
+    nFAULT_pin = pyb.Pin(pyb.Pin.board.PB2)
+    
+    IN1_pin = pyb.Pin(pyb.Pin.board.PB4)
+    IN2_pin = pyb.Pin(pyb.Pin.board.PB5)
+    
+    channel1 = 3
+    channel2 = 4
+    
+    timer = pyb.Timer(3,freq = 20000)    
+    
+    motor1 = MotorDriver(motorNum,nSLEEP_pin,nFAULT_pin,IN1_pin,channel1,IN2_pin,channel2,timer)
+    motor1.enable()
+    try:
+        while True: 
+            motor1.set_duty(30)
+    except KeyboardInterrupt:
+        motor1.det_duty(0)
+        motor1.disable()
+        print('test concluded')
     
     
     
@@ -120,7 +146,4 @@ def faultInterrupt(self,fault_pin):
     
     
     
-    
-    
-    
-    
+  
