@@ -109,7 +109,7 @@ class MotorDriver:
 
 def faultInterrupt(self,fault_pin):
     '''
-    @brief      ...
+    @brief      <b>Fault Pin External Interrupt</b>
     @Details    External interrupt method which is triggered when the motor H-bridge fault pin goes low.
     '''
     
