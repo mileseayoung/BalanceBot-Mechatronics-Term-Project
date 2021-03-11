@@ -90,7 +90,7 @@ length = 186
 ## Platform center coordinates
 center = [105,67]   
 ## Touch panel driver object
-touchObject = TouchDriver(pinxp,pinxm,pinyp,pinym,width,length,center)
+TouchObject = TouchDriver(pinxp,pinxm,pinyp,pinym,width,length,center)
     
 # IMU OBJECT
 ## I2C communication protocol
@@ -100,8 +100,8 @@ address = 0x28
 ## IMU object
 IMU = BNO055(i2c,address,crystal=False)
 # Mode integer value from IMU breakout board documentation
-GYRONLY_MODE = 0x03
-IMU.mode(GYRONLY_MODE)
+NDOF_MODE = 0x0c
+IMU.mode(NDOF_MODE)
 
 ###############################################################################
 
@@ -131,6 +131,10 @@ while True:
 Motor1.enable()
 Motor2.enable()        
 
+# Change IMU mode to gyro only for faster scans
+GYRONLY_MODE = 0x03
+IMU.mode(GYRONLY_MODE = 0x03)
+
 # Calibrate encoders
 # Calibrate x-axis
 while True:
@@ -157,20 +161,61 @@ while True:
     
 print('Encoder calibration complete')
 
-
+# CONTROLLER PROGRAM
 def angleCalc():
     '''
     @brief      <b> Solve for Angle Via Numerical Integration </b>
     @details    ...
     '''
+ 
+
+def CLfeedback():
+    '''
+    @brief      <b> Closed-loop Feedback Control for x-axis </b>
+    @details    ...
+    '''
+    
+    ## Measure angle about x-axis
+    theta = IMU.euler()[1]
+    ## Measure first time derivative of angle about x-axis
+    thetadot = IMU.gyro()[0]
+    
+    
+    ## Measure angle about y-axis
+    theta = IMU.euler()[2]
+    ## Measure first time derivative of angle about y-axis
+    thetadot = IMU.gyro()[1]
+
+    ## Measure x-position
+    if TouchObject.position[0]:
+        x = TouchObject.position()[1]
+        y = TouchObject.position()[2]
+    else:
+        # Recalibrate the platform
+    # Feedback Equation
+    
+       
+def yCL():
+    '''
+    @brief      <b> Closed-loop Feedback Control for y-axis </b>
+    @details    ...
+    '''
+    
+    
 
 
+# Input: x, y, theta_x, theta_y
+# Output: Torque (Duty Cycle)
+## Start time 
+startTime = utime.ticks_us()
+## Current time
+currTime = utime.ticks_us()
 
-
-
-
-
-
+while True:
+    currTime = utime.ticks_us()
+    yCL()
+    xCL()
+    
 
 
 
