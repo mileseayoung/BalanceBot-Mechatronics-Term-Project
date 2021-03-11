@@ -11,7 +11,7 @@ Created on Wed Mar 10 14:11:55 2021
 
 from pyb import Pin, I2C
 import utime
-import usys
+import sys
 from TouchDriver import TouchDriver
 from MotorDriver import MotorDriver
 from EncoderDriver import EncoderDriver
@@ -23,7 +23,7 @@ from bno055 import BNO055
 # MOTOR OBJECTS
 ## Enable/disable pin
 pinSleep = Pin(Pin.cpu.A15)
-pinFault = Pin(Pin.cpu.PB2)
+pinFault = Pin(Pin.cpu.B2)
 ## Forward driving pin for motor 1
 pinIN1 = Pin(Pin.cpu.B4)
 ## Reverse driving pin for motor 1
@@ -93,7 +93,11 @@ center = [105,67]
 TouchObject = TouchDriver(pinxp,pinxm,pinyp,pinym,width,length,center)
     
 # IMU OBJECT
-## I2C communication protocol
+## I2C SDA pin on NUCLEO
+sda = Pin(Pin.cpu.B8, pull=Pin.PULL_UP)
+## I2C scl pin on NUCLEO
+scl = Pin(Pin.cpu.B9, pull=Pin.PULL_UP)
+## I2C bus
 i2c = I2C(1)
 ## I2C address
 address = 0x28
@@ -112,9 +116,7 @@ if i2c.is_ready(address):
     print(' IMU address ' + str(hex(address)) + ' verified')
 else:
     print('Unable to verify IMU address ' + str(hex(address)) + '\n Program will exit')
-    # Exit program
-    usys.exit()    
-    
+    sys.exit()
 # Calibrate IMU
 input('Place the platform in a single stable position for a few seconds to allow the gyroscope to calibrate \n Press enter to begin calibration')
 
@@ -169,42 +171,29 @@ def angleCalc():
     '''
  
 
-def CLfeedback():
+def return2eq():
     '''
-    @brief      <b> Closed-loop Feedback Control for x-axis </b>
+    @brief      <b> Reset Platform Orientation </b>
     @details    ...
     '''
-    
-    ## Measure angle about x-axis
-    theta = IMU.euler()[1]
-    ## Measure first time derivative of angle about x-axis
-    thetadot = IMU.gyro()[0]
-    
-    
-    ## Measure angle about y-axis
-    theta = IMU.euler()[2]
-    ## Measure first time derivative of angle about y-axis
-    thetadot = IMU.gyro()[1]
 
-    ## Measure x-position
-    if TouchObject.position[0]:
-        x = TouchObject.position()[1]
-        y = TouchObject.position()[2]
-    else:
-        # Recalibrate the platform
+
+def xCL(x,theta_x,thetadot_x):
+    '''
+    @brief      <b> x-axis Closed-loop Feedback Control </b>
+    @details    ...
+    '''
     # Feedback Equation
-    
-       
-def yCL():
+
+def yCL(y,theta_y,thetadot_y):
     '''
-    @brief      <b> Closed-loop Feedback Control for y-axis </b>
-    @details    ...
-    '''
-    
+    @brief      <b> y-axis Closed-loop Feedback Control </b>
+    @details    ... 
+    '''    
     
 
 
-# Input: x, y, theta_x, theta_y
+# Input: x, y, theta_x, theta_y, thetadot_x, thetadot_y
 # Output: Torque (Duty Cycle)
 ## Start time 
 startTime = utime.ticks_us()
@@ -212,9 +201,31 @@ startTime = utime.ticks_us()
 currTime = utime.ticks_us()
 
 while True:
+    # Update current time
     currTime = utime.ticks_us()
-    yCL()
-    xCL()
+    ## Measure angle about x-axis
+    theta_x = IMU.euler()[1]
+    ## Measure first time derivative of angle about x-axis
+    thetadot_x = IMU.gyro()[0]
+    
+    
+    ## Measure angle about y-axis
+    theta_y = IMU.euler()[2]
+    ## Measure first time derivative of angle about y-axis
+    thetadot_y = IMU.gyro()[1]
+
+    ## Measure position
+    if TouchObject.position()[0]:
+        x = TouchObject.position()[1]
+        y = TouchObject.position()[2]
+    else:
+        input('Loss of contact detected - press enter to level the touch panel')
+        return2eq()
+        input('Press enter to resume controlled balancing')
+        pass # Placeholder for later code
+    
+    xCL(x,theta_x,thetadot_x)
+    yCL(y,theta_y,thetadot_y)
     
 
 

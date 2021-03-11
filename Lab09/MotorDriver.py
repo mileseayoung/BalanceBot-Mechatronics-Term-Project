@@ -37,7 +37,6 @@ class MotorDriver:
     
     ## Defines local object for enable pin from constructor
     self.nSleep_pin =   nSLEEP_pin
-    
     # Initialize sleep pin
     self.nSleep_pin.init(pyb.Pin.OUT_PP)
     
