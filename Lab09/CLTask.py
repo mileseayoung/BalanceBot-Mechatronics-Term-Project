@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 """
-Created on Thu Mar 11 09:03:11 2021
-
-@author: Miles
+@file       TouchDriver.py
+@author     Craig Kimball, Miles Young
+@date       02/25/2021
+@brief      <b> Resistive Touch Panel Driver </b> \n
+@details    This
 """
 
 import utime
-import sys
-
 
 class CLTask:
     
@@ -18,11 +18,10 @@ class CLTask:
     S2_control = 2
     
     
-    def __init__(self,taskNum,CLObject,MotorObject1,MotorObject2,EncoderObject1,EncoderObject2,TouchPanelObject,IMUObject,i2c,address):
+    def __init__(self,CLObject,MotorObject1,MotorObject2,EncoderObject1,EncoderObject2,TouchPanelObject,IMUObject,i2c,address):
         '''
         @brief      ...
         @details    ...
-        @param taskNum  ...
         @param CLObject ...
         @param MotorObject1     ...
         @param MotorObject2     ...
@@ -33,9 +32,37 @@ class CLTask:
         @param i2c  ...
         @param address  ...
         '''
-
-
-
+        
+        self.CL = CLObject
+        
+        self.Motor1 = MotorObject1
+        
+        self.Motor2 = MotorObject2
+        
+        self.Encoder1 = EncoderObject1
+        
+        self.Encoder2 = EncoderObject2
+        
+        self.TouchObject = TouchPanelObject
+        
+        self.IMU = IMUObject
+        
+         ## The timestamp for the initial iteration in milliseconds
+        self.startTime = utime.ticks_us()
+        
+        ## Defines the current time for the iteration and is overwritten at the beginning of each iteration
+        self.currTime = utime.ticks_us()
+        
+        ## Defines the interval after which another iteration will run as (pulses/PPS)
+        self.interval = 2000 # Spitballing here
+        
+        ## Time for which next iteration will run and is overwritten at the end of each iteration
+        self.nextTime = utime.ticks_add(self.startTime,self.interval)
+        
+        ## Creates a variable to hold the index of the current iteration of the task
+        self.runs = 0
+        
+        
     def run(self):
         '''
         @brief      ...
@@ -50,13 +77,8 @@ class CLTask:
             # If the interval has been reached
         
             if self.state == self.S0_init:
-                # Check IMU I2C comm. is valid
-                if self.i2c.is_ready(self.i2c,self.address):
-                    print(' IMU address ' + str(hex(self.address)) + ' verified')
-                    self.state = self.S1_calibrate
-                else:
-                    print('Unable to verify IMU address ' + str(hex(self.address)) + '\n Program will exit')
-                    sys.exit()
+                # Initialize the FSM
+                self.transitionTo(self.S1_calibrate)
             
             elif self.state == self.S1_calibrate:
                 # Calibrate IMU
@@ -131,10 +153,18 @@ class CLTask:
                     input('Loss of contact detected - commencing recalibration')
                     self.transitionTo(self.S1_calibration)
                 
-                xCL(x,theta_x,thetadot_x)
-                yCL(y,theta_y,thetadot_y)
+                self.xduty = self.CLObject.xCL(self.CLObject,x,theta_x,thetadot_x)
+                self.yduty = self.CLObject.yCL(self.CLObject,y,theta_y,thetadot_y)
+            
+                self.Motor1.setDuty(self.Motor1,xduty)
+                self.Motor2.setDuty(self.Motor2,yduty)
                 
-    
+                
+            # Define time after which the data collection task will commence
+            self.nextTime = utime.ticks_add(self.nextTime,int(self.interval))
+                
+            # Increase run count by 1
+            self.runs += 1 
     
     def transitionTo(self,newState):
         '''

@@ -10,12 +10,13 @@ Created on Wed Mar 10 14:11:55 2021
 """
 
 from pyb import Pin, I2C
-import utime
-import sys
 from TouchDriver import TouchDriver
 from MotorDriver import MotorDriver
 from EncoderDriver import EncoderDriver
+from CLDRiver import CLDriver
+from CLTask import CLTask
 from bno055 import BNO055
+import sys
 
 # INITIALIZING COMPONENT DRIVER OBJECTS
 ###############################################################################
@@ -101,6 +102,14 @@ scl = Pin(Pin.cpu.B9, pull=Pin.PULL_UP)
 i2c = I2C(1)
 ## I2C address
 address = 0x28
+# Check validity of address
+# Check IMU I2C comm. is valid
+if i2c.is_ready(address):
+    print(' IMU address ' + str(hex(address)) + ' verified')
+else:
+    print('Unable to verify IMU address ' + str(hex(address)) + '\n Program will exit')
+    sys.exit()
+
 ## IMU object
 IMU = BNO055(i2c,address,crystal=False)
 # Mode integer value from IMU breakout board documentation
@@ -111,71 +120,25 @@ IMU.mode(NDOF_MODE)
 
 # MOTOR CONTROLLER
 
-# Check IMU I2C comm. is valid
-if i2c.is_ready(address):
-    print(' IMU address ' + str(hex(address)) + ' verified')
-else:
-    print('Unable to verify IMU address ' + str(hex(address)) + '\n Program will exit')
-    sys.exit()
-# Calibrate IMU
-input('Place the platform in a single stable position for a few seconds to allow the gyroscope to calibrate \n Press enter to begin calibration')
+## First controller gain for closed-loop feedback
+K1 = 1
+## Second controller gain for closed-loop feedback
+K2 = 1
+## Third controller gain for closed-loop feedback
+K3 = 1
+## Fourth controller gain for closed-loop feedback
+K4 = 1
 
+## Closed-loop object  
+CLObject = CLDriver(K1,K2,K3,K4)
+
+## Closed-loop FSM Task
+ControlTask = CLTask(CLObject,Motor1,Motor2,Encoder1,Encoder2,TouchObject,IMU,i2c,address)
+
+# RUN CONTROLLER FSM INDEFINITELY
 while True:
-    # Delay 100 milliseconds
-    utime.sleep_ms(100)
-    # Check calibration status
-    if IMU.calibrated():
-        break
-    else:
-        print('Calibrating: ' + str(IMU.cal_status()[1]*(100/3)) + '%')
- 
-# Enable motors
-Motor1.enable()
-Motor2.enable()        
+    ControlTask.run()
 
-# Change IMU mode to gyro only for faster scans
-GYRONLY_MODE = 0x03
-IMU.mode(GYRONLY_MODE = 0x03)
-
-# Calibrate encoders
-# Calibrate x-axis
-while True:
-    if IMU.gyro()[0] != 0 and IMU.gyro()[0] < 0:
-        Motor1.setDuty(20)
-    elif IMU.gyro()[0] !=0 and IMU.gyro()[0] > 0:
-        Motor1.setDuty(-20)
-    elif IMU.gyro()[0] == 0:
-        Encoder1.setPosition(0)
-        break
-    else:
-        pass # Error Handling
-# Calibrate y-axis
-while True:
-    if IMU.gyro()[1] != 0 and IMU.gyro()[1] < 0:
-        Motor2.setDuty(20)
-    elif IMU.gyro()[1] !=0 and IMU.gyro()[1] > 0:
-        Motor2.setDuty(-20)
-    elif IMU.gyro()[1] == 0:
-        Encoder2.setPosition(0)
-        break
-    else:
-        pass # Error handling
-    
-print('Encoder calibration complete')
-
-# CONTROLLER PROGRAM
-
-
-# Input: x, y, theta_x, theta_y, thetadot_x, thetadot_y
-# Output: Torque (Duty Cycle)
-## Start time 
-startTime = utime.ticks_us()
-## Current time
-currTime = utime.ticks_us()
-
-while True:
-    # Update current time
-    currTime = utime.ticks_us()
    
     
 

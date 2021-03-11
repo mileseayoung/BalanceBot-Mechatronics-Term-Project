@@ -1,15 +1,16 @@
-''' @file       MotorDriver.py
-    @brief      <b>Motor Driver Class</b>
-    @details    This class allows modules to set up a motor on avaliable pins 
-                and then send input duty cycles to it which will then use PWM 
-                to control motor movement. During initialization, the user must 
-                define the desired pins, timer, and timer channels used to control 
-                the motor. These are then utilized in methods that enable or disable 
-                the motor or set the PWM duty cycle to the motor. An external 
-                interrupt on the fault pin of the motor immediately disables the 
-                motor if a fault is detected and prompts the user to signal for 
-                the motor to resume functioning.\n
-                <em>Source Code:</em> https://bitbucket.org/CraigKimball/me305_labs/src/master/Lab06/Motor_Driver.py
+'''
+@file       MotorDriver.py
+@brief      <b>Motor Driver Class</b>
+@details    This class allows modules to set up a motor on avaliable pins 
+            and then send input duty cycles to it which will then use PWM 
+            to control motor movement. During initialization, the user must 
+            define the desired pins, timer, and timer channels used to control 
+            the motor. These are then utilized in methods that enable or disable 
+            the motor or set the PWM duty cycle to the motor. An external 
+            interrupt on the fault pin of the motor immediately disables the 
+            motor if a fault is detected and prompts the user to signal for 
+            the motor to resume functioning.\n
+            <em>Source Code:</em> https://bitbucket.org/CraigKimball/me305_labs/src/master/Lab06/Motor_Driver.py
  '''
 import pyb
 

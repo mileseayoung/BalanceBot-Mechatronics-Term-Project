@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 """
-Created on Thu Mar 11 08:57:10 2021
-
-@author: Miles
+@file       TouchDriver.py
+@author     Craig Kimball, Miles Young
+@date       02/25/2021
+@brief      <b> Resistive Touch Panel Driver </b> \n
+@details    This 
 """
 
 class CLDriver:
@@ -32,26 +34,33 @@ class CLDriver:
         ## Controller gain 4 from constructor
         self.K4 = K4
     
-        
+
     
-    
-    
-    
-    
-    def xCL(x,theta_x,thetadot_x):
+    def xCL(self,x,xdot,theta_x,thetadot_x):
         '''
         @brief      <b> x-axis Closed-loop Feedback Control </b>
         @details    ...
+        @return xduty   ...
         '''
         # Feedback Equation
         
+        ## Solve for torque
+        Tx = -(self.K1*xdot + self.K2*thetadot_x + self.K3*x + self.K4*theta_x)
         
+        xduty = 1*Tx # Placeholder
         
+        return xduty  
 
-    def yCL(y,theta_y,thetadot_y):
+    def yCL(self,y,ydot,theta_y,thetadot_y):
         '''
         @brief      <b> y-axis Closed-loop Feedback Control </b>
         @details    ... 
+        @return yduty   ...
         '''        
         
         # Feedback Equation
+        Ty = -(self.K1*ydot + self.K2*thetadot_y + self.K3*y + self.K4*theta_y)
+        
+        yduty = 1*Ty # Placeholder
+        
+        return yduty

@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 """
-Created on Thu Feb 25 08:54:47 2021
-
 @file       TouchDriver.py
 @author     Miles Young
 @date       02/25/2021
