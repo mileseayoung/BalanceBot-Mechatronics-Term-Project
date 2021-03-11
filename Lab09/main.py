@@ -164,33 +164,6 @@ while True:
 print('Encoder calibration complete')
 
 # CONTROLLER PROGRAM
-def angleCalc():
-    '''
-    @brief      <b> Solve for Angle Via Numerical Integration </b>
-    @details    ...
-    '''
- 
-
-def return2eq():
-    '''
-    @brief      <b> Reset Platform Orientation </b>
-    @details    ...
-    '''
-
-
-def xCL(x,theta_x,thetadot_x):
-    '''
-    @brief      <b> x-axis Closed-loop Feedback Control </b>
-    @details    ...
-    '''
-    # Feedback Equation
-
-def yCL(y,theta_y,thetadot_y):
-    '''
-    @brief      <b> y-axis Closed-loop Feedback Control </b>
-    @details    ... 
-    '''    
-    
 
 
 # Input: x, y, theta_x, theta_y, thetadot_x, thetadot_y
@@ -203,29 +176,7 @@ currTime = utime.ticks_us()
 while True:
     # Update current time
     currTime = utime.ticks_us()
-    ## Measure angle about x-axis
-    theta_x = IMU.euler()[1]
-    ## Measure first time derivative of angle about x-axis
-    thetadot_x = IMU.gyro()[0]
-    
-    
-    ## Measure angle about y-axis
-    theta_y = IMU.euler()[2]
-    ## Measure first time derivative of angle about y-axis
-    thetadot_y = IMU.gyro()[1]
-
-    ## Measure position
-    if TouchObject.position()[0]:
-        x = TouchObject.position()[1]
-        y = TouchObject.position()[2]
-    else:
-        input('Loss of contact detected - press enter to level the touch panel')
-        return2eq()
-        input('Press enter to resume controlled balancing')
-        pass # Placeholder for later code
-    
-    xCL(x,theta_x,thetadot_x)
-    yCL(y,theta_y,thetadot_y)
+   
     
 
 
