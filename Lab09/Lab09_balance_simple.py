@@ -81,6 +81,7 @@ Motor2 = MotorDriver(2,pinSleep,pinFault,pinIN3,channel3,pinIN4,channel4,timer2)
 Motor1.setDuty(0)
 Motor2.setDuty(1)
 Motor1.enable()
+Motor2.enable()
 state = 0
 
 startTime = utime.ticks_us()
@@ -94,7 +95,7 @@ interval = 1500 # Spitballing here
 ## Time for which next iteration will run and is overwritten at the end of each iteration
 nextTime = utime.ticks_add(startTime,interval)
 
-gains = [-0.19,-0.19]
+gains = [-0.2,-0.19]
 
 # Resistance of motor system
 Resistance = 2.21 #ohms
@@ -132,17 +133,17 @@ try:
                 xtick = Encoder1.getPosition()
                 X = Encoder1.tick2deg(xtick)
                 
-                X_dot = X / (interval*1e6)
+                X_dot = Encoder1.getDelta() / (interval*1e6)
                 plat_paramX = [X,X_dot]
                 
                 #finding theta from 0 on Y axis
                 Encoder2.update()
                 ytick = Encoder2.getPosition()
                 Y = Encoder2.tick2deg(ytick)
-                Y_dot = Y / interval*(1e6)
+                Y_dot = Encoder2.getDelta() / interval*(1e6)
                 
                 plat_paramY = [Y,Y_dot]
-                #print([X,Y])
+                #print([Y,Y_dot])
                 # reading Ball positoin
                 '''
                 #current_ball_pos = touch.read()

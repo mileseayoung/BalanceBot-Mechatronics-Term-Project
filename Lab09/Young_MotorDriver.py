@@ -38,10 +38,10 @@ class MotorDriver:
         
         ## Defines local fault pin object for fault pin
         self.pinFault = pinFault
-        
+        '''
         ## Create external interrupt object connected to fault pin
         self.extint = pyb.ExtInt(pinFault, pyb.ExtInt.IRQ_FALLING, pyb.Pin.PULL_UP, self.faultInterrupt(pinFault))
-        
+        '''
         ## Defines local object for IN1 pin
         self.pinIN1 = pinIN1
         
@@ -71,7 +71,11 @@ class MotorDriver:
         self.pinSleep.high()
         
         # Enable fault external interrupt again
+<<<<<<< HEAD
         #utime.sleep_us(100)
+=======
+        utime.sleep_us(100)
+>>>>>>> ae00ecfac76dfa1e84b325dceaad56c388dedb97
         #self.extint.enable()
         
     def disable(self):
@@ -90,17 +94,20 @@ class MotorDriver:
         @param duty     The desired duty cycle, either positive for forward movement or negative for reverse movement
         '''
         
-        if duty > 0 and duty <= 100:
-            self.timch1.pulse_width_percent(duty)
-            self.timch2.pulse_width_percent(0)
-        elif duty < 0 and duty >= -100:
+        if (duty >= 100):
+            self.timch2.pulse_width_percent(100)
             self.timch1.pulse_width_percent(0)
-            self.timch2.pulse_width_percent(abs(duty))
-        elif duty == 0:
-            self.timch1.pulse_width_percent(duty)
+        elif(duty <= -100):
+            self.timch2.pulse_width_percent(0)
+            self.timch1.pulse_width_percent(100)
+        
+        if(duty >= 0):
             self.timch2.pulse_width_percent(duty)
-        else:
-            print('Duty cycle ' + str(duty) +  ' is out of bounds')
+            self.timch1.pulse_width_percent(0)
+        elif(duty < 0):
+            duty_correct = duty *(-1)
+            self.timch2.pulse_width_percent(0)
+            self.timch1.pulse_width_percent(duty_correct)
             
     def brake(self):
         '''
@@ -110,12 +117,12 @@ class MotorDriver:
         
         self.timch1.pulse_width_percent(0)
         self.timch2.pulse_width_percent(0)
-
+'''
     def faultInterrupt(self,fault_pin):
-        '''
-        @brief      <b>Fault Pin External Interrupt</b>
-        @Details    External interrupt method which is triggered when the motor H-bridge fault pin goes low.
-        '''
+        
+        #@brief      <b>Fault Pin External Interrupt</b>
+        #@Details    External interrupt method which is triggered when the motor H-bridge fault pin goes low.
+        
         
         # Immediately disable the motor
         self.disable()
@@ -125,4 +132,4 @@ class MotorDriver:
         # Proceed based on user input
         # Automatically re-enable the motor
         self.enable()
-           
+   '''        
