@@ -7,6 +7,7 @@ Created on Thu Mar 11 20:28:36 2021
 
 from EncoderDriver import EncoderDriver
 from TouchDriver import TouchDriver
+from Young_MotorDriver import MotorDriver
 
 import utime
 import pyb
@@ -48,6 +49,38 @@ center = [105,67]
 
 touch = TouchDriver(xp,xm,yp,ym,w,length,center)
 
+
+pinSleep = pyb.Pin(pyb.Pin.cpu.A15)
+## Fault pin
+pinFault = pyb.Pin(pyb.Pin.cpu.B2)
+## Forward driving pin for motor 1
+pinIN1 = pyb.Pin(pyb.Pin.cpu.B4)
+## Reverse driving pin for motor 1
+pinIN2 = pyb.Pin(pyb.Pin.cpu.B5)
+## Forward driving pin for motor 2
+pinIN3 = pyb.Pin(pyb.Pin.cpu.B0)
+## Reverse driving pin for motor 2
+pinIN4 = pyb.Pin(pyb.Pin.cpu.B1)
+## Timer number for motor 1
+timer1 = 3
+## Timer number for motor 2
+timer2 = 3
+## Timer channel for pinIN1
+channel1 = 1
+## Timer channel for pinIN2
+channel2 = 2
+## Timer channel for pinIN3
+channel3 = 3
+## Timer channel for pinIN4
+channel4 = 4
+## Motor 1 Object
+Motor1 = MotorDriver(1,pinSleep,pinFault,pinIN1,channel1,pinIN2,channel2,timer1) 
+## Motor 2 object
+Motor2 = MotorDriver(2,pinSleep,pinFault,pinIN3,channel3,pinIN4,channel4,timer2)
+
+Motor1.setDuty(0)
+Motor2.setDuty(1)
+Motor1.enable()
 state = 0
 
 startTime = utime.ticks_us()
@@ -56,18 +89,27 @@ startTime = utime.ticks_us()
 currTime = utime.ticks_us()
 
 ## Defines the interval after which another iteration will run as (pulses/PPS)
-interval = 2000 # Spitballing here
+interval = 1500 # Spitballing here
 
 ## Time for which next iteration will run and is overwritten at the end of each iteration
 nextTime = utime.ticks_add(startTime,interval)
 
+gains = [-0.19,-0.19]
+
+# Resistance of motor system
+Resistance = 2.21 #ohms
+#Motor Torque Constant
+Kt = 13.8 #mNm/A
+#Voltage supplied to the motor
+Vdc = 3.3 #volts
+
 try:
     while True:
         currTime = utime.ticks_us()
-        
+
         # Specifying the next time the task will run
         if utime.ticks_diff(currTime, nextTime) >= 0:
-        
+
             if state == 0:
                 ## Init State
                 input('Hold the board level with the ball resting in the cente of the board. Then Press Enter')
@@ -90,13 +132,20 @@ try:
                 xtick = Encoder1.getPosition()
                 X = Encoder1.tick2deg(xtick)
                 
+                X_dot = X / (interval*1e6)
+                plat_paramX = [X,X_dot]
+                
                 #finding theta from 0 on Y axis
                 Encoder2.update()
                 ytick = Encoder2.getPosition()
                 Y = Encoder2.tick2deg(ytick)
+                Y_dot = Y / interval*(1e6)
+                
+                plat_paramY = [Y,Y_dot]
                 #print([X,Y])
                 # reading Ball positoin
-                current_ball_pos = touch.read()
+                '''
+                #current_ball_pos = touch.read()
                 #If the bal is still detected as being on the platform
                 if current_ball_pos[0] == True:
                     X_ball = current_ball_pos[1]
@@ -104,11 +153,9 @@ try:
                     
                     x_ball_from_home = X_ball - ball_rest[1]
                     y_ball_from_home = Y_ball - ball_rest[2]
-                    print([x_ball_from_home,y_ball_from_home])
-                    state = 2
-                else:
-                    print('Ball appears to have lost contact with Touch board, Going back to calibration')
-                    state = 0
+                '''
+                state = 2
+                
             #Controller state. Where motor values are found and applied
             if state == 2:
                 '''
@@ -116,17 +163,21 @@ try:
                 will then calculate a Torque output for a motor and that will be converted to a duty
                 cycle that is then applied to the motor.
                 '''
-                #Motorx_out = #ClDriverX(Some Parameters)
-                #Motory_out = #CLDriverY(Some Parameters)
                 
-                #Motorx_feed = TtoD(Motorx_out)
-                #Motory_feed = TtoD(Motory_out)
+                InputTx = (plat_paramX[0] * (-gains[0])) + ((-gains[1])*plat_paramX[1])
+                InputTy = (plat_paramY[0] * (-gains[0])) + ((-gains[1])*plat_paramY[1])
                 
-                #Motor1.setDuty(Motorx_feed)
-                #Motor2.setDuty(Motory_feed)
-            
-        nextTime = utime.ticks_add(nextTime,int(interval))
+                Motorx_feed = ((Resistance / (Kt * Vdc)) * InputTx)*100
+                Motory_feed = ((Resistance / (Kt * Vdc)) * InputTy)*100
+                print([Motorx_feed,Motory_feed])
+                
+                Motor1.setDuty(Motorx_feed)
+                Motor2.setDuty(Motory_feed)
+                state = 1
+            nextTime = utime.ticks_add(nextTime,int(interval))
 except KeyboardInterrupt:
+    Motor1.disable()
+    Motor2.disable()
     print('Balancing has concluded ')
 
 def TtoD(self,Torque):
@@ -143,7 +194,7 @@ def TtoD(self,Torque):
     #Voltage supplied to the motor
     Vdc = 3.3 #volts
     
-    Duty_decimal = (Resistance / (Kt * Vdc)) * Torque
+    Duty_decimal = ((Resistance / (Kt * Vdc)) * Torque)*100
     Duty_percent = Duty_decimal * 100
     return int(Duty_percent)
 
@@ -156,4 +207,5 @@ def Controller(self,gains,plat_param):
     @param gains A matrix Of gain values K1 - K4 for the controller. input as a list
     @param plat_param Platform parameters for the controller must be in form [x_dot,Theta_dot,x,theta]
     '''
-    T= (plat_param[2] * gains[1])
+    T= (plat_param[0] * (-gains[0])) + ((-gains[1])*plat_param[1])
+    return(T)
