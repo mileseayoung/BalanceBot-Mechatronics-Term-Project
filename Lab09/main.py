@@ -95,16 +95,14 @@ center = [105,67]
 TouchObject = TouchDriver(pinxp,pinxm,pinyp,pinym,width,length,center)
     
 # IMU OBJECT
-## I2C SDA pin on NUCLEO
-pinSDA = Pin(Pin.cpu.B8, Pin.IN, Pin.PULL_UP)
-## I2C scl pin on NUCLEO
-pinSCL = Pin(Pin.cpu.B9, Pin.IN, Pin.PULL_UP)
 ## I2C object
-i2c = I2C(1)
+i2c = I2C(1,I2C.MASTER)
+## I2C SDA pin on NUCLEO
+#pinSDA = Pin(Pin.cpu.B8, Pin.IN, Pin.PULL_UP)
+## I2C scl pin on NUCLEO
+#pinSCL = Pin(Pin.cpu.B9, Pin.IN, Pin.PULL_UP)
 ## I2C address
 address = 0x28
-# Initialize I2C object
-i2c.init(I2C.MASTER)
 # Check validity of address
 # Check IMU I2C comm. is valid
 if i2c.is_ready(address):

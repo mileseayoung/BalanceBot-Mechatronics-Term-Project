@@ -36,31 +36,32 @@ class CLDriver:
     
 
     
-    def xCL(self,x,xdot,theta_x,thetadot_x):
+    def TtoD(self,Torque):
         '''
-        @brief      <b> x-axis Closed-loop Feedback Control </b>
-        @details    ...
-        @return xduty   ...
+        @brief          Converts Torque to Duty cycle
+        @details        Takes a torque value supplied by the controller, for correcting balance, and converts
+                        it to a duty cycle that can be sent to the motor through PWM signal
+        @param Torque   Output Torque from controller required to balance board. Units assumed to be mN-M
         '''
-        # Feedback Equation
+        # Resistance of motor system
+        Resistance = 2.21 #ohms
+        #Motor Torque Constant
+        Kt = 13.8 #mNm/A
+        #Voltage supplied to the motor
+        Vdc = 3.3 #volts
         
-        ## Solve for torque
-        Tx = -(self.K1*xdot + self.K2*thetadot_x + self.K3*x + self.K4*theta_x)
+        Duty_decimal = ((Resistance / (Kt * Vdc)) * Torque)*100
+        Duty_percent = Duty_decimal * 100
+        return int(Duty_percent)
         
-        xduty = 1*Tx # Placeholder
-        
-        return xduty  
-
-    def yCL(self,y,ydot,theta_y,thetadot_y):
+    
+    def Controller(self,gains,plat_param):
         '''
-        @brief      <b> y-axis Closed-loop Feedback Control </b>
-        @details    ... 
-        @return yduty   ...
-        '''        
-        
-        # Feedback Equation
-        Ty = -(self.K1*ydot + self.K2*thetadot_y + self.K3*y + self.K4*theta_y)
-        
-        yduty = 1*Ty # Placeholder
-        
-        return yduty
+        @brief Closed Loop Controller for getting motor torques
+        @details takes a gain matrix input and platform parameters matrix both as an array. Uses
+        the form T = -k*x to spit out a motor torque value for the necessary axis.
+        @param gains A matrix Of gain values K1 - K4 for the controller. input as a list
+        @param plat_param Platform parameters for the controller must be in form [x_dot,Theta_dot,x,theta]
+        '''
+        T= (plat_param[0] * (-gains[0])) + ((-gains[1])*plat_param[1])
+        return(T)

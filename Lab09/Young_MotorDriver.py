@@ -65,14 +65,14 @@ class MotorDriver:
         '''
         
         # Disable fault external interrupt momentarily
-        self.extint.disable()
+        #self.extint.disable()
         
         #print('Enabling Motor ' + str(self.motorNum))
         self.pinSleep.high()
         
         # Enable fault external interrupt again
-        utime.sleep_us(100)
-        self.extint.enable()
+        #utime.sleep_us(100)
+        #self.extint.enable()
         
     def disable(self):
         '''
