@@ -11,7 +11,7 @@ Created on Wed Mar 10 14:11:55 2021
 
 from pyb import Pin, I2C
 from TouchDriver import TouchDriver
-from MotorDriver import MotorDriver
+from Young_MotorDriver import MotorDriver
 from EncoderDriver import EncoderDriver
 from CLDRiver import CLDriver
 from CLTask import CLTask
@@ -24,6 +24,7 @@ import sys
 # MOTOR OBJECTS
 ## Enable/disable pin
 pinSleep = Pin(Pin.cpu.A15)
+## Fault pin
 pinFault = Pin(Pin.cpu.B2)
 ## Forward driving pin for motor 1
 pinIN1 = Pin(Pin.cpu.B4)
@@ -95,19 +96,21 @@ TouchObject = TouchDriver(pinxp,pinxm,pinyp,pinym,width,length,center)
     
 # IMU OBJECT
 ## I2C SDA pin on NUCLEO
-sda = Pin(Pin.cpu.B8, pull=Pin.PULL_UP)
+pinSDA = Pin(Pin.cpu.B8, Pin.IN, Pin.PULL_UP)
 ## I2C scl pin on NUCLEO
-scl = Pin(Pin.cpu.B9, pull=Pin.PULL_UP)
-## I2C bus
+pinSCL = Pin(Pin.cpu.B9, Pin.IN, Pin.PULL_UP)
+## I2C object
 i2c = I2C(1)
 ## I2C address
 address = 0x28
+# Initialize I2C object
+i2c.init(I2C.MASTER)
 # Check validity of address
 # Check IMU I2C comm. is valid
 if i2c.is_ready(address):
     print(' IMU address ' + str(hex(address)) + ' verified')
 else:
-    print('Unable to verify IMU address ' + str(hex(address)) + '\n Program will exit')
+    print('Unable to verify IMU address ' + str(hex(address)) + '\n' + 'Program will exit')
     sys.exit()
 
 ## IMU object
@@ -133,7 +136,7 @@ K4 = 1
 CLObject = CLDriver(K1,K2,K3,K4)
 
 ## Closed-loop FSM Task
-ControlTask = CLTask(CLObject,Motor1,Motor2,Encoder1,Encoder2,TouchObject,IMU,i2c,address)
+ControlTask = CLTask(CLObject,Motor1,Motor2,Encoder1,Encoder2,TouchObject,IMU)
 
 # RUN CONTROLLER FSM INDEFINITELY
 while True:

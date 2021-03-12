@@ -18,7 +18,7 @@ class CLTask:
     S2_control = 2
     
     
-    def __init__(self,CLObject,MotorObject1,MotorObject2,EncoderObject1,EncoderObject2,TouchPanelObject,IMUObject,i2c,address):
+    def __init__(self,CLObject,MotorObject1,MotorObject2,EncoderObject1,EncoderObject2,TouchPanelObject,IMUObject):
         '''
         @brief      ...
         @details    ...
@@ -47,7 +47,11 @@ class CLTask:
         
         self.IMU = IMUObject
         
-         ## The timestamp for the initial iteration in milliseconds
+        self.xPrev = 0
+        
+        self.yprev = 0
+        
+        ## The timestamp for the initial iteration in milliseconds
         self.startTime = utime.ticks_us()
         
         ## Defines the current time for the iteration and is overwritten at the beginning of each iteration
@@ -78,6 +82,10 @@ class CLTask:
         
             if self.state == self.S0_init:
                 # Initialize the FSM
+                # Enable motors
+                self.Motor1.enable(self.Motor1)
+                self.Motor2.enable(self.Motor2)
+                # Transition to calibration state
                 self.transitionTo(self.S1_calibrate)
             
             elif self.state == self.S1_calibrate:
@@ -92,14 +100,6 @@ class CLTask:
                         break
                     else:
                         print('Calibrating: ' + str(self.IMU.cal_status(self.IMU)[1]*(100/3)) + '%')
-                 
-                # Enable motors
-                self.Motor1.enable(self.Motor1)
-                self.Motor2.enable(self.Motor2)        
-                
-                # Change IMU mode to gyro only for faster scans
-                GYRONLY_MODE = 0x03
-                self.IMU.mode(self.IMU,GYRONLY_MODE)
                 
                 # Calibrate encoders
                 # Calibrate x-axis
@@ -131,33 +131,46 @@ class CLTask:
                 self.transitionTo(self.S2_control)
                     
             elif self.state == self.S2_control:
-                # Update encoder counts
-                self.Encoder1.update(self.Encoder1)
-                self.Encoder2.update(self.Encoder2)
-                ## Measure angle about x-axis
-                theta_x = self.IMU.euler(self.IMU)[1]
-                ## Measure first time derivative of angle about x-axis
-                thetadot_x = self.IMU.gyro(self.IMU)[0]
-                
-                
-                ## Measure angle about y-axis
-                theta_y = self.IMU.euler(self.IMU)[2]
-                ## Measure first time derivative of angle about y-axis
-                thetadot_y = self.IMU.gyro(self.IMU)[1]
-            
-                ## Measure position
-                if self.TouchObject.position(self.TouchObject)[0]:
-                    x = self.TouchObject.position(self.TouchObject)[1]
-                    y = self.TouchObject.position(self.TouchObject)[2]
+                if self.Motor1.fault_status == 1:
+                    pass # Placeholder
+                    # Implement fault reset
                 else:
-                    input('Loss of contact detected - commencing recalibration')
-                    self.transitionTo(self.S1_calibration)
+                    # Update encoder counts
+                    self.Encoder1.update(self.Encoder1)
+                    self.Encoder2.update(self.Encoder2)
+                    # Measure angle about x-axis
+                    self.theta_x = self.IMU.euler(self.IMU)[1]
+                    # Measure first time derivative of angle about x-axis
+                    self.thetadot_x = self.IMU.gyro(self.IMU)[0]
+                    
+                    # Measure angle about y-axis
+                    self.theta_y = self.IMU.euler(self.IMU)[2]
+                    # Measure first time derivative of angle about y-axis
+                    self.thetadot_y = self.IMU.gyro(self.IMU)[1]
                 
-                self.xduty = self.CLObject.xCL(self.CLObject,x,theta_x,thetadot_x)
-                self.yduty = self.CLObject.yCL(self.CLObject,y,theta_y,thetadot_y)
-            
-                self.Motor1.setDuty(self.Motor1,xduty)
-                self.Motor2.setDuty(self.Motor2,yduty)
+                    # Measure position
+                    if self.TouchObject.position(self.TouchObject)[0]:
+                        self.x = self.TouchObject.position(self.TouchObject)[1]
+                        self.y = self.TouchObject.position(self.TouchObject)[2]
+                    else:
+                        input('Loss of contact detected - commencing recalibration')
+                        self.transitionTo(self.S1_calibration)
+                    
+                    # Numerically calculate linear velocity of ball in x and y directions
+                    self.xdot = self.linVelocity(self.xprev,self.x,self.interval)
+                    self.ydot = self.linVelocity(self.yprev,self.y,self.interval)
+                    
+                    # Update previous measurements for next iteration
+                    self.xprev = self.x
+                    self.yprev = self.y
+                    
+                    # Calculate the new duty cycle for each motor based on closed-loop feedback
+                    self.xduty = self.CLObject.xCL(self.CLObject,self.x,self.xdot,self.theta_x,self.thetadot_x)
+                    self.yduty = self.CLObject.yCL(self.CLObject,self.y,self.ydot,self.theta_y,self.thetadot_y)
+                
+                    # Update motor duty cycles
+                    self.Motor1.setDuty(self.Motor1,self.xduty)
+                    self.Motor2.setDuty(self.Motor2,self.yduty)
                 
                 
             # Define time after which the data collection task will commence
@@ -173,4 +186,16 @@ class CLTask:
         '''
     
         self.state = newState
+        
+        
+    def linVelocity(self,prev,curr,interval):
+        '''
+        @brief      ...
+        @details    ...
+        '''
+        
+        velocity = (curr-prev)/interval
+        
+        return velocity
+        
         
