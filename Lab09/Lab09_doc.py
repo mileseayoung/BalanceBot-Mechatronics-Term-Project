@@ -61,7 +61,49 @@ Once these values were implented into the system the team could then tune the ac
 For the actual system a controller method was developed that would take gains as an input and determine the necessary torque for the motor ofr a given axis.
 Code from the teams method is shown below.
 
+When implenting the system the team first decided to get the platform to balance itself
+without introduction of the ball. This meant that the controller would only need to gains
+and the touch panel would not need to be called or operated. Below is a code snippet from the code used to balance
+just the platform when working on the initial design
+    
+    if state == 1:
+                #finding theta from 0 on X axis
+                Encoder1.update()
+                xtick = Encoder1.getPosition()
+                X = Encoder1.tick2deg(xtick)
+                
+                X_dot = Encoder1.getDelta() / (interval*1e6)
+                plat_paramX = [X,X_dot]
+                
+                #finding theta from 0 on Y axis
+                Encoder2.update()
+                ytick = Encoder2.getPosition()
+                Y = Encoder2.tick2deg(ytick)
+                Y_dot = Encoder2.getDelta() / interval*(1e6)
+                
+                plat_paramY = [Y,Y_dot]
+                #print([Y,Y_dot])
+                # reading Ball positoin
 
+
+    if state == 2:
+                '''
+                In this state values are to be fed into a controller. The controller
+                will then calculate a Torque output for a motor and that will be converted to a duty
+                cycle that is then applied to the motor.
+                '''
+                
+                InputTx = (plat_paramX[0] * (-gains[0])) + ((-gains[1])*plat_paramX[1])
+                InputTy = (plat_paramY[0] * (-gains[0])) + ((-gains[1])*plat_paramY[1])
+                
+                Motorx_feed = int(((Resistance / (Kt * Vdc)) * InputTx)*100)
+                Motory_feed = int(((Resistance / (Kt * Vdc)) * InputTy)*100)
+                print([Motorx_feed,Motory_feed])
+                
+                Motor1.setDuty(Motorx_feed)
+                Motor2.setDuty(Motory_feed)
+                state = 1
+                
 From the initial run of the program the team got the following result
 
 #insert image, graph video text.
@@ -70,4 +112,10 @@ Eventually the system was further tuned to have gain valus of X X X X
 
 Here is a video of the final system
 
+<<<<<<< HEAD
 """
+=======
+'''
+
+
+>>>>>>> c4a191d9f8a843912c18297fdfd6644cdca25be0
