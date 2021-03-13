@@ -13,12 +13,12 @@ class CLTask:
     
     S0_init = 0
     
-    S1_calibrate = 1
+    S1_update = 1
     
     S2_control = 2
     
     
-    def __init__(self,CLObject,MotorObject1,MotorObject2,EncoderObject1,EncoderObject2,TouchPanelObject,IMUObject):
+    def __init__(self,CLObject,MotorObject1,MotorObject2,EncoderObject1,EncoderObject2,TouchPanelObject,dbg=False):
         '''
         @brief      ...
         @details    ...
@@ -45,7 +45,7 @@ class CLTask:
         
         self.TouchObject = TouchPanelObject
         
-        self.IMU = IMUObject
+        #self.IMU = IMUObject
         
         self.xPrev = 0
         
@@ -58,127 +58,113 @@ class CLTask:
         self.currTime = utime.ticks_us()
         
         ## Defines the interval after which another iteration will run as (pulses/PPS)
-        self.interval = 2000 # Spitballing here
+        self.interval = 10000 # Spitballing here
         
         ## Time for which next iteration will run and is overwritten at the end of each iteration
         self.nextTime = utime.ticks_add(self.startTime,self.interval)
         
+        self.state = self.S0_init
+        
         ## Creates a variable to hold the index of the current iteration of the task
         self.runs = 0
         
+        self.dbg = dbg
+        
+        if dbg == True:
+            print('Initialization successful')
+        
+        
+        input('Hold the board level with the ball resting in the cente of the board, then Press Enter')
         
     def run(self):
         '''
         @brief      ...
         @details    ...
         '''
-        
         ## Updates to the current time recorded by the controller clock
         self.currTime = utime.ticks_us()
+        
+        if self.dbg == True:
+            print('Run: {:}, State: {:}, time: {:}'.format(self.runs,self.state,utime.ticks_diff(self.currTime,self.startTime)))
         
         # Specifying the next time the task will run
         if utime.ticks_diff(self.currTime, self.nextTime) >= 0:
             # If the interval has been reached
-        
+
             if self.state == self.S0_init:
-                # Initialize the FSM
-                # Enable motors
-                self.Motor1.enable(self.Motor1)
-                self.Motor2.enable(self.Motor2)
-                # Transition to calibration state
-                self.transitionTo(self.S1_calibrate)
-            
-            elif self.state == self.S1_calibrate:
-                # Calibrate IMU
-                input('Place the platform in a single stable position for a few seconds to allow the gyroscope to calibrate \n Press enter to begin calibration')
+                ## Init State
+                #input('Hold the board level with the ball resting in the cente of the board. Then Press Enter')
+                # Update encoder positions to zero them on level position
+                self.zeroX = 0
+                self.Encoder1.setPosition(self.zeroX)
+                self.zeroY = 0
+                self.Encoder2.setPosition(self.zeroY)
+                # Read touch panel to find ball position
+                self.ball_rest = self.TouchObject.read()
+                print(str(self.ball_rest))
+                self.transitionTo(self.S1_update)
                 
-                while True:
-                    # Delay 100 milliseconds
-                    utime.sleep_ms(100)
-                    # Check calibration status
-                    if self.IMU.calibrated(self.IMU):
-                        break
-                    else:
-                        print('Calibrating: ' + str(self.IMU.cal_status(self.IMU)[1]*(100/3)) + '%')
+            #State for reading position of deviation of ball and platform from centerpoint
+            if self.state == self.S1_update:
+                '''
+                In this state, measurements for ball and platform position or orientation are updated and secondary values are calculated
+                '''
                 
-                # Calibrate encoders
-                # Calibrate x-axis
-                while True:
-                    self.xCalAngle = self.IMU.gyro(self.IMU)[0]
-                    if self.xCalAngle != 0 and self.xCalAngle < 0:
-                        self.Motor1.setDuty(self.Motor1,20)
-                    elif self.xCalAngle !=0 and self.xCalAngle > 0:
-                        self.Motor1.setDuty(self.Motor1,-20)
-                    elif self.xCalAngle == 0:
-                        self.Encoder1.setPosition(self.Encoder2,0)
-                        break
-                    else:
-                        pass # Error Handling
-                # Calibrate y-axis
-                while True:
-                    self.yCalAngle = self.IMU.gyro(self.IMU)[1]
-                    if self.yCalAngle != 0 and self.yCalAngle < 0:
-                        self.Motor2.setDuty(self.Motor2,20)
-                    elif self.yCalAngle !=0 and self.yCalAngle > 0:
-                        self.Motor2.setDuty(self.Motor2,-20)
-                    elif self.yCalAngle == 0:
-                        self.Encoder2.setPosition(self.Encoder2,0)
-                        break
-                    else:
-                        pass # Error Handling
+                #finding theta from 0 on X axis
+                self.Encoder1.update()
+                self.xtick = self.Encoder1.getPosition()
+                self.X = self.Encoder1.tick2deg(self.xtick)
+                
+                self.X_dot = self.Encoder1.getDelta() / (self.interval*1e6)
+                self.plat_paramX = [self.X,self.X_dot]
+                
+                #finding theta from 0 on Y axis
+                self.Encoder2.update()
+                self.ytick = self.Encoder2.getPosition()
+                self.Y = self.Encoder2.tick2deg(self.ytick)
+                self.Y_dot = self.Encoder2.getDelta() / self.interval*(1e6)
+                
+                self.plat_paramY = [self.Y,self.Y_dot]
+                #print([Y,Y_dot])
+                # reading Ball position
+                '''
+                #current_ball_pos = touch.read()
+                #If the bal is still detected as being on the platform
+                if current_ball_pos[0] == True:
+                    X_ball = current_ball_pos[1]
+                    Y_ball = current_ball_pos[2]
                     
-                print('Encoder calibration complete')
+                    x_ball_from_home = X_ball - ball_rest[1]
+                    y_ball_from_home = Y_ball - ball_rest[2]
+                '''
                 self.transitionTo(self.S2_control)
-                    
-            elif self.state == self.S2_control:
-                if self.Motor1.fault_status == 1:
-                    pass # Placeholder
-                    # Implement fault reset
-                else:
-                    # Update encoder counts
-                    self.Encoder1.update(self.Encoder1)
-                    self.Encoder2.update(self.Encoder2)
-                    # Measure angle about x-axis
-                    self.theta_x = self.IMU.euler(self.IMU)[1]
-                    # Measure first time derivative of angle about x-axis
-                    self.thetadot_x = self.IMU.gyro(self.IMU)[0]
-                    
-                    # Measure angle about y-axis
-                    self.theta_y = self.IMU.euler(self.IMU)[2]
-                    # Measure first time derivative of angle about y-axis
-                    self.thetadot_y = self.IMU.gyro(self.IMU)[1]
                 
-                    # Measure position
-                    if self.TouchObject.position(self.TouchObject)[0]:
-                        self.x = self.TouchObject.position(self.TouchObject)[1]
-                        self.y = self.TouchObject.position(self.TouchObject)[2]
-                    else:
-                        input('Loss of contact detected - commencing recalibration')
-                        self.transitionTo(self.S1_calibration)
-                    
-                    # Numerically calculate linear velocity of ball in x and y directions
-                    self.xdot = self.linVelocity(self.xprev,self.x,self.interval)
-                    self.ydot = self.linVelocity(self.yprev,self.y,self.interval)
-                    
-                    # Update previous measurements for next iteration
-                    self.xprev = self.x
-                    self.yprev = self.y
-                    
-                    # Calculate the new duty cycle for each motor based on closed-loop feedback
-                    self.xduty = self.CLObject.xCL(self.CLObject,self.x,self.xdot,self.theta_x,self.thetadot_x)
-                    self.yduty = self.CLObject.yCL(self.CLObject,self.y,self.ydot,self.theta_y,self.thetadot_y)
+            #Controller state. Where motor values are found and applied
+            if self.state == self.S2_control:
+                '''
+                In this state values are to be fed into a controller. The controller
+                will then calculate a Torque output for a motor and that will be converted to a duty
+                cycle that is then applied to the motor.
+                '''
+                # Debug print statement
+                print("we got this far")
+                self.InputTx = self.CL.Controller(self.plat_paramX)
+                self.InputTy = self.CL.Controller(self.plat_paramY)
                 
-                    # Update motor duty cycles
-                    self.Motor1.setDuty(self.Motor1,self.xduty)
-                    self.Motor2.setDuty(self.Motor2,self.yduty)
+                self.Motorx_feed = self.CL.TtoD(self.InputTx)
+                self.Motory_feed = self.CL.TtoD(self.InputTy)
+                print([self.Motorx_feed,self.Motory_feed])
                 
-                
-            # Define time after which the data collection task will commence
-            self.nextTime = utime.ticks_add(self.nextTime,int(self.interval))
-                
-            # Increase run count by 1
-            self.runs += 1 
-    
+                self.Motor1.setDuty(self.Motorx_feed)
+                self.Motor2.setDuty(self.Motory_feed)
+                self.transitionTo(self.S1_update)
+            
+        # Define time after which the data collection task will commence
+        self.nextTime = utime.ticks_add(self.nextTime,int(self.interval))
+            
+        # Increase run count by 1
+        self.runs += 1 
+
     def transitionTo(self,newState):
         '''
         @brief          Transitions between states
@@ -188,13 +174,13 @@ class CLTask:
         self.state = newState
         
         
-    def linVelocity(self,prev,curr,interval):
+    def linVelocity(self,delta):
         '''
         @brief      ...
         @details    ...
         '''
         
-        velocity = (curr-prev)/interval
+        velocity = delta/(self.interval*1e6)
         
         return velocity
         

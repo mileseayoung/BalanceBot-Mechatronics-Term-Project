@@ -9,7 +9,7 @@
 """
 
 import pyb
-import utime
+#import utime
 
 class MotorDriver:
     '''
@@ -71,11 +71,8 @@ class MotorDriver:
         self.pinSleep.high()
         
         # Enable fault external interrupt again
-<<<<<<< HEAD
         #utime.sleep_us(100)
-=======
-        utime.sleep_us(100)
->>>>>>> ae00ecfac76dfa1e84b325dceaad56c388dedb97
+
         #self.extint.enable()
         
     def disable(self):

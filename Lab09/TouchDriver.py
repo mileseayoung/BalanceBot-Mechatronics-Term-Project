@@ -94,7 +94,7 @@ class TouchDriver:
         # Read adc channel to find unscaled x position
         xpos = xADC.read()
         # Scale x position
-        xpos = xpos*(length/(3800-200)) - center[0]
+        xpos = xpos*(self.length/(3800-200)) - self.center[0]
         
         return xpos
         
@@ -126,7 +126,7 @@ class TouchDriver:
         # Read adc channel to find unscaled y position
         ypos = yADC.read()
         # Scale x position
-        ypos = ypos*(width/(3600-400)) - center[1]
+        ypos = ypos*(self.width/(3600-400)) - self.center[1]
         
         return ypos
         
