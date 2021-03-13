@@ -15,8 +15,8 @@ from Young_MotorDriver import MotorDriver
 from EncoderDriver import EncoderDriver
 from CLDRiver import CLDriver
 from CLTask import CLTask
-from bno055 import BNO055
-import sys
+#from bno055 import BNO055
+#import sys
 
 # INITIALIZING COMPONENT DRIVER OBJECTS
 ###############################################################################
@@ -123,13 +123,13 @@ IMU.mode(NDOF_MODE)
 # MOTOR CONTROLLER
 
 ## First controller gain for closed-loop feedback
-K1 = 1
+K1 = -0.2
 ## Second controller gain for closed-loop feedback
-K2 = 1
+K2 = -0.19
 ## Third controller gain for closed-loop feedback
-K3 = 1
+K3 = None
 ## Fourth controller gain for closed-loop feedback
-K4 = 1
+K4 = None
 
  ## Measured internal motor resistance, units Ohms
 resistance = 2.21
@@ -152,9 +152,9 @@ try:
         ControlTask.run()
         
 except KeyboardInterrupt:
-           Motor1.disable()
-           Motor2.disable()
-           print('Balancing has concluded ')
+        Motor1.disable()
+        Motor2.disable()
+        print('Balancing concluded')
 
    
     

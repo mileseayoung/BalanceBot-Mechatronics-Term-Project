@@ -47,50 +47,62 @@ class CLTask:
         
         #self.IMU = IMUObject
         
-        self.xPrev = 0
-        
-        self.yprev = 0
+        ## Debug flag, set in constructor
+        self.dbg = dbg
         
         ## The timestamp for the initial iteration in milliseconds
-        self.startTime = utime.ticks_us()
+        self.startTime = utime.ticks_ms()
         
         ## Defines the current time for the iteration and is overwritten at the beginning of each iteration
-        self.currTime = utime.ticks_us()
+        self.currTime = utime.ticks_ms()
         
-        ## Defines the interval after which another iteration will run as (pulses/PPS)
-        self.interval = 10000 # Spitballing here
+        ## Defines the interval after which another iteration will run in ms
+        self.interval = 1 # Spitballing here
         
-        ## Time for which next iteration will run and is overwritten at the end of each iteration
-        self.nextTime = utime.ticks_add(self.startTime,self.interval)
-        
+        ## Defines the starting state for the run() method
         self.state = self.S0_init
+        
+        ## Flag variable to signal if the first run() of the fsm is occurring. This is used to set an accurate initial nextTime
+        self.firstFlag = True
         
         ## Creates a variable to hold the index of the current iteration of the task
         self.runs = 0
         
-        self.dbg = dbg
+        # Before FSM runs, encoder zero positions must be determined
+        input('Hold the board level with the ball resting in the center of the board, then press Enter')
         
+        # Debug initialization confirmation
         if dbg == True:
             print('Initialization successful')
         
+        ## Time for which next iteration will run and is overwritten at the end of each iteration
+        self.nextTime = utime.ticks_add(self.startTime,self.interval)
         
-        input('Hold the board level with the ball resting in the cente of the board, then Press Enter')
         
     def run(self):
         '''
         @brief      ...
         @details    ...
         '''
-        ## Updates to the current time recorded by the controller clock
-        self.currTime = utime.ticks_us()
         
-        if self.dbg == True:
-            print('Run: {:}, State: {:}, time: {:}'.format(self.runs,self.state,utime.ticks_diff(self.currTime,self.startTime)))
+        ## Updates to the current time recorded by the controller clock
+        self.currTime = utime.ticks_ms()
+        
+        # Set initial next time based on current time of first run
+        if self.firstFlag == True:
+            ## Time for which next iteration will run and is overwritten at the end of each iteration
+            self.nextTime = utime.ticks_add(self.currTime,self.interval) 
+            self.firstFlag = False
+        else:
+            pass
         
         # Specifying the next time the task will run
         if utime.ticks_diff(self.currTime, self.nextTime) >= 0:
             # If the interval has been reached
-
+            
+            if self.dbg == True:
+                print('Run: {:}, State: {:}, time: {:} ms'.format(self.runs,self.state,utime.ticks_diff(self.currTime,self.nextTime)))
+            
             if self.state == self.S0_init:
                 ## Init State
                 #input('Hold the board level with the ball resting in the cente of the board. Then Press Enter')
@@ -105,7 +117,7 @@ class CLTask:
                 self.transitionTo(self.S1_update)
                 
             #State for reading position of deviation of ball and platform from centerpoint
-            if self.state == self.S1_update:
+            elif self.state == self.S1_update:
                 '''
                 In this state, measurements for ball and platform position or orientation are updated and secondary values are calculated
                 '''
@@ -114,16 +126,14 @@ class CLTask:
                 self.Encoder1.update()
                 self.xtick = self.Encoder1.getPosition()
                 self.X = self.Encoder1.tick2deg(self.xtick)
-                
-                self.X_dot = self.Encoder1.getDelta() / (self.interval*1e6)
+                self.X_dot = self.Encoder1.getDelta() / (self.interval*1e3)
                 self.plat_paramX = [self.X,self.X_dot]
                 
                 #finding theta from 0 on Y axis
                 self.Encoder2.update()
                 self.ytick = self.Encoder2.getPosition()
                 self.Y = self.Encoder2.tick2deg(self.ytick)
-                self.Y_dot = self.Encoder2.getDelta() / self.interval*(1e6)
-                
+                self.Y_dot = self.Encoder2.getDelta() / self.interval*(1e3)
                 self.plat_paramY = [self.Y,self.Y_dot]
                 #print([Y,Y_dot])
                 # reading Ball position
@@ -140,7 +150,7 @@ class CLTask:
                 self.transitionTo(self.S2_control)
                 
             #Controller state. Where motor values are found and applied
-            if self.state == self.S2_control:
+            elif self.state == self.S2_control:
                 '''
                 In this state values are to be fed into a controller. The controller
                 will then calculate a Torque output for a motor and that will be converted to a duty
@@ -158,12 +168,12 @@ class CLTask:
                 self.Motor1.setDuty(self.Motorx_feed)
                 self.Motor2.setDuty(self.Motory_feed)
                 self.transitionTo(self.S1_update)
-            
-        # Define time after which the data collection task will commence
-        self.nextTime = utime.ticks_add(self.nextTime,int(self.interval))
-            
-        # Increase run count by 1
-        self.runs += 1 
+                
+            # Define time after which the data collection task will commence
+            self.nextTime = utime.ticks_add(self.nextTime,self.interval)
+                
+            # Increase run count by 1
+            self.runs += 1 
 
     def transitionTo(self,newState):
         '''
