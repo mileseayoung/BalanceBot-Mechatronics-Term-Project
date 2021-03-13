@@ -93,7 +93,7 @@ length = 186
 center = [105,67]   
 ## Touch panel driver object
 TouchObject = TouchDriver(pinxp,pinxm,pinyp,pinym,width,length,center)
-    
+'''   
 # IMU OBJECT
 ## I2C object
 i2c = I2C(1,I2C.MASTER)
@@ -105,6 +105,7 @@ i2c = I2C(1,I2C.MASTER)
 address = 0x28
 # Check validity of address
 # Check IMU I2C comm. is valid
+
 if i2c.is_ready(address):
     print(' IMU address ' + str(hex(address)) + ' verified')
 else:
@@ -116,7 +117,7 @@ IMU = BNO055(i2c,address,crystal=False)
 # Mode integer value from IMU breakout board documentation
 NDOF_MODE = 0x0c
 IMU.mode(NDOF_MODE)
-
+'''
 ###############################################################################
 
 # MOTOR CONTROLLER
@@ -130,15 +131,30 @@ K3 = 1
 ## Fourth controller gain for closed-loop feedback
 K4 = 1
 
+ ## Measured internal motor resistance, units Ohms
+resistance = 2.21
+
+## Measured motor torque constant, units mNm/A
+Kt = 13.8
+
+## DC voltage supplied to motor, units V
+Vdc = 3.3
+
 ## Closed-loop object  
-CLObject = CLDriver(K1,K2,K3,K4)
+CLObject = CLDriver(K1,K2,K3,K4,resistance,Kt,Vdc)
 
 ## Closed-loop FSM Task
-ControlTask = CLTask(CLObject,Motor1,Motor2,Encoder1,Encoder2,TouchObject,IMU)
+ControlTask = CLTask(CLObject,Motor1,Motor2,Encoder1,Encoder2,TouchObject,dbg=True)
 
 # RUN CONTROLLER FSM INDEFINITELY
-while True:
-    ControlTask.run()
+try:
+    while True:
+        ControlTask.run()
+        
+except KeyboardInterrupt:
+           Motor1.disable()
+           Motor2.disable()
+           print('Balancing has concluded ')
 
    
     
