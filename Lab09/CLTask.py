@@ -51,13 +51,13 @@ class CLTask:
         self.dbg = dbg
         
         ## The timestamp for the initial iteration in milliseconds
-        self.startTime = utime.ticks_ms()
+        self.startTime = utime.ticks_us()
         
         ## Defines the current time for the iteration and is overwritten at the beginning of each iteration
-        self.currTime = utime.ticks_ms()
+        self.currTime = utime.ticks_us()
         
         ## Defines the interval after which another iteration will run in ms
-        self.interval = 1 # Spitballing here
+        self.interval = 20000 # Spitballing here
         
         ## Defines the starting state for the run() method
         self.state = self.S0_init
@@ -86,7 +86,7 @@ class CLTask:
         '''
         
         ## Updates to the current time recorded by the controller clock
-        self.currTime = utime.ticks_ms()
+        self.currTime = utime.ticks_us()
         
         # Set initial next time based on current time of first run
         if self.firstFlag == True:
@@ -101,7 +101,7 @@ class CLTask:
             # If the interval has been reached
             
             if self.dbg == True:
-                print('Run: {:}, State: {:}, time: {:} ms'.format(self.runs,self.state,utime.ticks_diff(self.currTime,self.nextTime)))
+                print('Run: {:}, State: {:}, time: {:} us'.format(self.runs,self.state,utime.ticks_diff(self.currTime,self.startTime)))
             
             if self.state == self.S0_init:
                 ## Init State
@@ -114,6 +114,7 @@ class CLTask:
                 # Read touch panel to find ball position
                 self.ball_rest = self.TouchObject.read()
                 print(str(self.ball_rest))
+                self.current_ball_pos = self.ball_rest
                 self.transitionTo(self.S1_update)
                 
             #State for reading position of deviation of ball and platform from centerpoint
@@ -121,33 +122,37 @@ class CLTask:
                 '''
                 In this state, measurements for ball and platform position or orientation are updated and secondary values are calculated
                 '''
-                
                 #finding theta from 0 on X axis
                 self.Encoder1.update()
                 self.xtick = self.Encoder1.getPosition()
                 self.X = self.Encoder1.tick2deg(self.xtick)
-                self.X_dot = self.Encoder1.getDelta() / (self.interval*1e3)
+                self.X_dot = self.Encoder1.getDelta() / (self.interval*1e6)
                 self.plat_paramX = [self.X,self.X_dot]
                 
                 #finding theta from 0 on Y axis
                 self.Encoder2.update()
                 self.ytick = self.Encoder2.getPosition()
                 self.Y = self.Encoder2.tick2deg(self.ytick)
-                self.Y_dot = self.Encoder2.getDelta() / self.interval*(1e3)
+                self.Y_dot = self.Encoder2.getDelta() / self.interval*(1e6)
                 self.plat_paramY = [self.Y,self.Y_dot]
                 #print([Y,Y_dot])
                 # reading Ball position
-                '''
-                #current_ball_pos = touch.read()
+                
+                self.last_ball_pos = self.current_ball_pos
+                self.current_ball_pos = self.TouchObject.read()
                 #If the bal is still detected as being on the platform
-                if current_ball_pos[0] == True:
-                    X_ball = current_ball_pos[1]
-                    Y_ball = current_ball_pos[2]
-                    
-                    x_ball_from_home = X_ball - ball_rest[1]
-                    y_ball_from_home = Y_ball - ball_rest[2]
-                '''
-                self.transitionTo(self.S2_control)
+                if self.current_ball_pos[0] == True:
+                    self.X_ball = self.current_ball_pos[1]
+                    self.Y_ball = self.current_ball_pos[2]
+                    self.X_ball_dot = (self.current_ball_pos[1] - self.last_ball_pos[1]) / (self.interval*(1e6))
+                    self.Y_ball_dot = (self.current_ball_pos[2] - self.last_ball_pos[2]) / (self.interval*(1e6))
+                   
+                    self.ball_paramX = [self.X_ball,self.X_ball_dot]
+                    self.ball_paramY = [self.Y_ball,self.Y_ball_dot]
+                    self.transitionTo(self.S2_control)
+                else:
+                    print('Ball no longer detected - return to calibration')
+                    self.transitionTo(self.S0_init)
                 
             #Controller state. Where motor values are found and applied
             elif self.state == self.S2_control:
@@ -158,15 +163,15 @@ class CLTask:
                 '''
                 # Debug print statement
                 print("we got this far")
-                self.InputTx = self.CL.Controller(self.plat_paramX)
-                self.InputTy = self.CL.Controller(self.plat_paramY)
+                self.InputTx = self.CL.Controller(self.plat_paramX,self.ball_paramX)
+                self.InputTy = self.CL.Controller(self.plat_paramY,self.ball_paramY)
                 
                 self.Motorx_feed = self.CL.TtoD(self.InputTx)
                 self.Motory_feed = self.CL.TtoD(self.InputTy)
                 print([self.Motorx_feed,self.Motory_feed])
                 
-                self.Motor1.setDuty(self.Motorx_feed)
-                self.Motor2.setDuty(self.Motory_feed)
+                self.Motor1.setDuty(self.Motory_feed)
+                self.Motor2.setDuty(self.Motorx_feed)
                 self.transitionTo(self.S1_update)
                 
             # Define time after which the data collection task will commence

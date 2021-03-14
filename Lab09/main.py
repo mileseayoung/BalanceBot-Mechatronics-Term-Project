@@ -34,10 +34,8 @@ pinIN2 = Pin(Pin.cpu.B5)
 pinIN3 = Pin(Pin.cpu.B0)
 ## Reverse driving pin for motor 2
 pinIN4 = Pin(Pin.cpu.B1)
-## Timer number for motor 1
-timer1 = 3
-## Timer number for motor 2
-timer2 = 3
+## Timer number for motor 1 & 2
+motorTimer = 3
 ## Timer channel for pinIN1
 channel1 = 1
 ## Timer channel for pinIN2
@@ -47,9 +45,9 @@ channel3 = 3
 ## Timer channel for pinIN4
 channel4 = 4
 ## Motor 1 Object
-Motor1 = MotorDriver(1,pinSleep,pinFault,pinIN1,channel1,pinIN2,channel2,timer1) 
+Motor1 = MotorDriver(1,pinSleep,pinFault,pinIN1,channel1,pinIN2,channel2,motorTimer) 
 ## Motor 2 object
-Motor2 = MotorDriver(2,pinSleep,pinFault,pinIN3,channel3,pinIN4,channel4,timer2)
+Motor2 = MotorDriver(2,pinSleep,pinFault,pinIN3,channel3,pinIN4,channel4,motorTimer)
 
 # ENCODER OBJECTS
 ## Define pin A1 object
@@ -57,13 +55,13 @@ pinA1 = Pin(Pin.cpu.B6)
 ## Define pin B1 object
 pinB1 = Pin(Pin.cpu.B7)
 ## Define the timer to be used for encoder 1
-timer1 = 4
+encTimer1 = 4
 ## Define pin A2 object
 pinA2 = Pin(Pin.cpu.C6)
 ## Define pin B2 object
 pinB2 = Pin(Pin.cpu.C7)
 ## Define the timer to be used for encoder 2
-timer2 = 8
+encTimer2 = 8
 ## Define the pulses per cycle for each encoder
 PPC = 4
 ## Define the cycles per rotation for each encoder
@@ -71,9 +69,9 @@ CPR = 1000
 ## Define the gear ratio for each encoder to motor
 gearRatio = 4
 ## Encoder 1 Object
-Encoder1 = EncoderDriver(pinA1,pinB1,timer1,PPC,CPR,gearRatio)
+Encoder1 = EncoderDriver(pinA1,pinB1,encTimer1,PPC,CPR,gearRatio)
 ## Encoder 2 object
-Encoder2 = EncoderDriver(pinA2,pinB2,timer2,PPC,CPR,gearRatio)
+Encoder2 = EncoderDriver(pinA2,pinB2,encTimer2,PPC,CPR,gearRatio)
 
 # TOUCH PANEL OBJECT 
 ## Positive x-dir touch panel pin
@@ -123,13 +121,13 @@ IMU.mode(NDOF_MODE)
 # MOTOR CONTROLLER
 
 ## First controller gain for closed-loop feedback
-K1 = -0.2
+K1 = -0.019
 ## Second controller gain for closed-loop feedback
-K2 = -0.19
+K2 = -0.02
 ## Third controller gain for closed-loop feedback
-K3 = None
+K3 = -.01
 ## Fourth controller gain for closed-loop feedback
-K4 = None
+K4 = -0.04
 
  ## Measured internal motor resistance, units Ohms
 resistance = 2.21
@@ -144,12 +142,15 @@ Vdc = 3.3
 CLObject = CLDriver(K1,K2,K3,K4,resistance,Kt,Vdc)
 
 ## Closed-loop FSM Task
-ControlTask = CLTask(CLObject,Motor1,Motor2,Encoder1,Encoder2,TouchObject,dbg=True)
+CLTask = CLTask(CLObject,Motor1,Motor2,Encoder1,Encoder2,TouchObject,dbg=True)
 
 # RUN CONTROLLER FSM INDEFINITELY
+Motor1.enable()
+Motor1.enable()
+
 try:
     while True:
-        ControlTask.run()
+        CLTask.run()
         
 except KeyboardInterrupt:
         Motor1.disable()

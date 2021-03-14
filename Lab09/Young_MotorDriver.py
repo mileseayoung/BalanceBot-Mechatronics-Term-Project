@@ -21,6 +21,7 @@ class MotorDriver:
         @brief          Creates a motor driver by initializing GPIO pins and turning the motor off for safety.
         @param motorNum A number identifier for the motor object.
         @param pinSleep A pyb.Pin object to use as the enable pin.
+        @param pinFault A pyb.Pin object to use with an external interrupt to sense current overloads from the motor.
         @param pinIN1   A pyb.Pin object to use as the input to half bridge 1.
         @param channel1 A number identifier for the timer channel for pinIN1.
         @param pinIN2   A pyb.Pin object to use as the input to half bridge 2.

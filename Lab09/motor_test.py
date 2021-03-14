@@ -1,4 +1,3 @@
-'''
 from pyb import Timer, Pin, delay
 
 TIM3 = Timer(3, freq=20000)
@@ -55,4 +54,3 @@ print("CW: " + str(TIM8.counter()))
 delay(500)
 
 EN.low()
-'''
