@@ -8,6 +8,7 @@
 """
 
 import utime
+import sys
 
 class CLTask:
     
@@ -151,8 +152,8 @@ class CLTask:
                     self.ball_paramY = [self.Y_ball,self.Y_ball_dot]
                     self.transitionTo(self.S2_control)
                 else:
-                    print('Ball no longer detected - return to calibration')
-                    self.transitionTo(self.S0_init)
+                    print('Ball no longer detected - program will exit')
+                    sys.exit()
                 
             #Controller state. Where motor values are found and applied
             elif self.state == self.S2_control:
@@ -161,8 +162,6 @@ class CLTask:
                 will then calculate a Torque output for a motor and that will be converted to a duty
                 cycle that is then applied to the motor.
                 '''
-                # Debug print statement
-                print("we got this far")
                 self.InputTx = self.CL.Controller(self.plat_paramX,self.ball_paramX)
                 self.InputTy = self.CL.Controller(self.plat_paramY,self.ball_paramY)
                 

@@ -39,10 +39,10 @@ class MotorDriver:
         
         ## Defines local fault pin object for fault pin
         self.pinFault = pinFault
-        '''
+        
         ## Create external interrupt object connected to fault pin
-        self.extint = pyb.ExtInt(pinFault, pyb.ExtInt.IRQ_FALLING, pyb.Pin.PULL_UP, self.faultInterrupt(pinFault))
-        '''
+        self.extint = pyb.ExtInt(self.pinFault, pyb.ExtInt.IRQ_FALLING, pyb.Pin.PULL_UP, self.faultInterrupt)
+        
         ## Defines local object for IN1 pin
         self.pinIN1 = pinIN1
         
@@ -66,18 +66,16 @@ class MotorDriver:
         '''
         
         # Disable fault external interrupt momentarily
-        #self.extint.disable()
+        self.extint.disable()
         
         #print('Enabling Motor ' + str(self.motorNum))
         self.pinSleep.high()
         
         # Enable fault external interrupt again
 
-        #utime.sleep_us(100)
+        utime.sleep_us(100)
 
-        #utime.sleep_us(100)
-
-        #self.extint.enable()
+        self.extint.enable()
         
     def disable(self):
         '''
@@ -118,19 +116,17 @@ class MotorDriver:
         
         self.timch1.pulse_width_percent(0)
         self.timch2.pulse_width_percent(0)
-'''
+
     def faultInterrupt(self,fault_pin):
-        
-        #@brief      <b>Fault Pin External Interrupt</b>
-        #@Details    External interrupt method which is triggered when the motor H-bridge fault pin goes low.
-        
+        '''
+        @brief      <b>Fault Pin External Interrupt</b>
+        @Details    External interrupt method which is triggered when the motor H-bridge fault pin goes low.
+        '''
         
         # Immediately disable the motor
         self.disable()
         
-        # Prompt user input before clearing fault
-        input("Fault detected: Press enter to clear and resume functioning")
-        # Proceed based on user input
-        # Automatically re-enable the motor
-        self.enable()
-   '''        
+        self.setDuty(0)
+        
+        self.faultFlag = True
+        

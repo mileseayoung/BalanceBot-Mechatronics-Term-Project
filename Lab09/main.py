@@ -24,8 +24,11 @@ from CLTask import CLTask
 # MOTOR OBJECTS
 ## Enable/disable pin
 pinSleep = Pin(Pin.cpu.A15)
-## Fault pin
-pinFault = Pin(Pin.cpu.B2)
+## Fault pin for motor 1
+pinFault1 = Pin(Pin.cpu.B2)
+## Fault pin for motor 2
+pinFault2 = Pin(Pin.cpu.C13)
+
 ## Forward driving pin for motor 1
 pinIN1 = Pin(Pin.cpu.B4)
 ## Reverse driving pin for motor 1
@@ -45,9 +48,9 @@ channel3 = 3
 ## Timer channel for pinIN4
 channel4 = 4
 ## Motor 1 Object
-Motor1 = MotorDriver(1,pinSleep,pinFault,pinIN1,channel1,pinIN2,channel2,motorTimer) 
+Motor1 = MotorDriver(1,pinSleep,pinFault1,pinIN1,channel1,pinIN2,channel2,motorTimer) 
 ## Motor 2 object
-Motor2 = MotorDriver(2,pinSleep,pinFault,pinIN3,channel3,pinIN4,channel4,motorTimer)
+Motor2 = MotorDriver(2,pinSleep,pinFault2,pinIN3,channel3,pinIN4,channel4,motorTimer)
 
 # ENCODER OBJECTS
 ## Define pin A1 object
@@ -121,13 +124,13 @@ IMU.mode(NDOF_MODE)
 # MOTOR CONTROLLER
 
 ## First controller gain for closed-loop feedback
-K1 = -0.019
+K1 = -3.28
 ## Second controller gain for closed-loop feedback
-K2 = -0.02
+K2 = -0.27
 ## Third controller gain for closed-loop feedback
-K3 = -.01
+K3 = -9.09
 ## Fourth controller gain for closed-loop feedback
-K4 = -0.04
+K4 = -4.00
 
  ## Measured internal motor resistance, units Ohms
 resistance = 2.21

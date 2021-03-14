@@ -1,4 +1,4 @@
-from pyb import Timer, Pin, delay
+from pyb import Timer, Pin, delay, ExtInt
 
 TIM3 = Timer(3, freq=20000)
 # Motor 1
@@ -15,7 +15,6 @@ TIM4.channel(2, mode=Timer.ENC_AB, pin=Pin.cpu.B7)
 TIM8 = Timer(8, period=0xFFFF, prescaler=0)
 TIM8.channel(1, mode=Timer.ENC_AB, pin=Pin.cpu.C6)
 TIM8.channel(2, mode=Timer.ENC_AB, pin=Pin.cpu.C7)
-
 
 EN = Pin(Pin.cpu.A15, mode=Pin.OUT_PP, value=1)
 
