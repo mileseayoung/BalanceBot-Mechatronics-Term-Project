@@ -124,13 +124,13 @@ IMU.mode(NDOF_MODE)
 # MOTOR CONTROLLER
 
 ## First controller gain for closed-loop feedback
-K1 = -3.28
+K1 = -.028
 ## Second controller gain for closed-loop feedback
-K2 = -0.27
+K2 = -0.027
 ## Third controller gain for closed-loop feedback
-K3 = -9.09
+K3 = -.0909
 ## Fourth controller gain for closed-loop feedback
-K4 = -4.00
+K4 = -.400
 
  ## Measured internal motor resistance, units Ohms
 resistance = 2.21

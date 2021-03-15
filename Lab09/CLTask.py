@@ -58,7 +58,7 @@ class CLTask:
         self.currTime = utime.ticks_us()
         
         ## Defines the interval after which another iteration will run in ms
-        self.interval = 20000 # Spitballing here
+        self.interval = 10000 # Spitballing here
         
         ## Defines the starting state for the run() method
         self.state = self.S0_init
@@ -153,6 +153,8 @@ class CLTask:
                     self.transitionTo(self.S2_control)
                 else:
                     print('Ball no longer detected - program will exit')
+                    self.Motor1.disable()
+                    self.Motor2.disable()
                     sys.exit()
                 
             #Controller state. Where motor values are found and applied
