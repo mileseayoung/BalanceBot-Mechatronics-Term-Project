@@ -14,7 +14,6 @@ Created on Tue Nov 24 00:21:08 2020
 """
 
 import pyb
-import math
 
 class EncoderDriver:
     '''
@@ -169,16 +168,16 @@ class EncoderDriver:
         return theta
     
     
-    def delta2radpersec(self,delta,interval):
+    def getSpeed(self,interval):
        '''
-       @brief           <b> Convert encoder delta to radians per second </b>
+       @brief           <b> Convert encoder delta to degrees per second </b>
        @details         Determines the angular velocity of the motor according to the encoder PPC (pulses per cycle), CPR (cycles per revolution), and gear ratio which were input into the object constructor, as well as the time interval over which the encoder delta was calculated.
-       @param delta     The difference in encoder position in ticks. Most easily obtained from self.getDelta() method.
-       @param interval  The interval of time over which delta occurs, which must be in microseconds
+       @param interval  The interval of time over which delta occurs, which must be in seconds
+       @param speed     Returns the speed of the encoder in deg/s   
        '''
        
        ## calculated speed of the encoder
-       radpersec = (delta/interval)*(60000000/1)/(self.PPC*self.CPR)*(2*math.pi)*(1/60)
+       speed = int(self.getDelta()/interval)/(self.PPC*self.CPR)*(360)
        
-       return radpersec
+       return speed
 

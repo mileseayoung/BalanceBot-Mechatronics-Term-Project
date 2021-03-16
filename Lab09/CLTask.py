@@ -120,7 +120,7 @@ class CLTask:
                 self.Encoder2.setPosition(0)
                 # Read touch panel to find ball position
                 self.ball_rest = self.TouchObject.read()
-                if self.dbg ==True:
+                if self.dbg == True:
                     print(str(self.ball_rest))
                 self.current_ball_pos = self.ball_rest
                 self.transitionTo(self.S1_update)
@@ -132,14 +132,14 @@ class CLTask:
                 '''
                 #finding theta from 0 on X axis
                 self.Encoder1.update()
-                self.X = self.Encoder1.getAngle()
-                self.X_dot = self.Encoder1.delta2radpersec(self.Encoder1.getDelta(),self.interval)
-                self.plat_paramX = [self.X,self.X_dot]
+                self.theta = self.Encoder1.getAngle()
+                self.theta_dot = self.Encoder1.getSpeed(self.interval*1e6)
+                self.plat_paramX = [self.theta,self.theta_dot]
                 #finding theta from 0 on Y axis
                 self.Encoder2.update()
-                self.Y = self.Encoder2.getAngle()
-                self.Y_dot = self.Encoder2.delta2radpersec(self.Encoder2.getDelta(),self.interval)
-                self.plat_paramY = [self.Y,self.Y_dot]
+                self.phi = self.Encoder2.getAngle()
+                self.phi_dot = self.Encoder2.getSpeed(self.interval*1e6)
+                self.plat_paramY = [self.phi,self.phi_dot]
                 if self.dbg == True:
                     print('theta and theta_dot: ' + str(self.plat_paramX))
                     print('phi and phi_dot: ' + str(self.plat_paramY))
@@ -152,8 +152,8 @@ class CLTask:
                 #if self.current_ball_pos[0] == True:
                 self.X_ball = self.current_ball_pos[1]
                 self.Y_ball = self.current_ball_pos[2]
-                self.X_ball_dot = (self.current_ball_pos[1] - self.last_ball_pos[1]) / (self.interval*(1e6))
-                self.Y_ball_dot = (self.current_ball_pos[2] - self.last_ball_pos[2]) / (self.interval*(1e6))
+                self.X_ball_dot = (self.current_ball_pos[1] - self.last_ball_pos[1]) / (self.interval*1e6)
+                self.Y_ball_dot = (self.current_ball_pos[2] - self.last_ball_pos[2]) / (self.interval*1e6)
                
                 self.ball_paramX = [self.X_ball,self.X_ball_dot]
                 self.ball_paramY = [self.Y_ball,self.Y_ball_dot]
@@ -201,16 +201,5 @@ class CLTask:
         '''
     
         self.state = newState
-        
-        
-    def linVelocity(self,delta):
-        '''
-        @brief      <b> Calculate linear velocity </b>
-        @details    ...
-        '''
-        
-        velocity = delta/(self.interval*1e6)
-        
-        return velocity
         
         
