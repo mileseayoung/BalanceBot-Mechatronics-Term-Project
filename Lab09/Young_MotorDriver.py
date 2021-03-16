@@ -97,19 +97,19 @@ class MotorDriver:
         '''
         
         if (duty >= 100):
-            self.timch2.pulse_width_percent(100)
-            self.timch1.pulse_width_percent(0)
-        elif(duty <= -100):
-            self.timch2.pulse_width_percent(0)
             self.timch1.pulse_width_percent(100)
+            self.timch2.pulse_width_percent(0)
+        elif(duty <= -100):
+            self.timch1.pulse_width_percent(0)
+            self.timch2.pulse_width_percent(100)
         
         if(duty >= 0):
-            self.timch2.pulse_width_percent(duty)
-            self.timch1.pulse_width_percent(0)
+            self.timch1.pulse_width_percent(duty)
+            self.timch2.pulse_width_percent(0)
         elif(duty < 0):
             duty_correct = duty *(-1)
-            self.timch2.pulse_width_percent(0)
-            self.timch1.pulse_width_percent(duty_correct)
+            self.timch1.pulse_width_percent(0)
+            self.timch2.pulse_width_percent(duty_correct)
             
     def brake(self):
         '''
@@ -130,7 +130,14 @@ class MotorDriver:
         # Immediately disable the motor
         self.disable()
         
+        # Set motor duty cycle to zero
         self.setDuty(0)
         
+        # Reset fault pin to high state
+        self.pinFault.high()
+        
+        # Set fault flag to true
         self.faultFlag = True
         
+        # Print fault statement
+        print('Fault')
