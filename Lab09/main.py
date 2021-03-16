@@ -3,7 +3,7 @@
 Created on Wed Mar 10 14:11:55 2021
 
 @file       BalanceBot.py
-@author     Miles Young
+@author     Miles Young Craig Kimball
 @date       03/10/2021
 @brief      <b> Balancing Platform Main Controller </b> \n
 @details    This main script contains the controller programming for the balance bot system.

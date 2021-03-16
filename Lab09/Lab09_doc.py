@@ -11,7 +11,7 @@ drivers throughout the quarter to implement a closed loop controller on hardware
 a balancing board that can keep a ball balanced in the center of a platform. Pictured below is the 
 hardware used for this project
 
-@image html XXXX.png <---- Balance board hardware 
+@image html Lab09_pushrod.png width=500cm
 
 The balance board is controlled by two motors mounted on the lower part of the platofrm, that
 have a 2 bar linkage connected from the motor shaft to the edge of the balance platform. By
@@ -24,7 +24,7 @@ platform for a rubber ball that will roll freely on the platform. This system wa
 the state space controller for acuating the platform. More reading on this modeling can be found on the documentation
 pages for Lab05 and Lab06 if desired.
 
-@image html XXX.png <------ Touch Panel with Ball on it
+@image html Lab09_ballPlat.png width=500cm
 
 @section Drivers_sec Drivers 
 In this project a number of self built drivers are utilized for the control of the balance board.
@@ -55,7 +55,16 @@ For this controller to work with the real system initial gain values needed to b
 In order to do this the team simplified the A B matrices into 2x1 matrices as the inputs to the system control Angular position and velocity. for the initial
 system a damping ratio of 0.75 was chosen and an wn of 100 was selected. Below is the work to determine these analytical gains.
 
-@image html XXX>png <------- Analytical gain calcs.
+@image html Lab09_calc1.png width=800cm
+@image html Lab09_calc2.png width=800cm
+
+These calculations solved for two gain values for implenting a balancing platform that focused on keeping the platform
+level, not dealing with the ball. Next full system analytical calcualtions performed using the method shown by Charlie by creating the charateristic
+polynomial
+
+@image html Lab09_calc3.png width=800cm
+@image html Lab09_calc4.png width=800cm
+
 
 Once these values were implented into the system the team could then tune the actual system to account for any assumptions made during the system modeling step in Lab05 and Lab06.
 For the actual system a controller method was developed that would take gains as an input and determine the necessary torque for the motor ofr a given axis.
@@ -106,16 +115,16 @@ just the platform when working on the initial design
                 
 From the initial run of the program the team got the following result
 
+
 #insert image, graph video text.
 
-Eventually the system was further tuned to have gain valus of X X X X
+The team seemed to have significant issue with the platform over correcting and faulting
+even after some tuning was attempted. What the team found was that the values seemed to be off by a factor
+of 1000. Upon inspection one of the teammates found that there were inconsistent units being used in the program.
+Once that was corrected gains were reimplemented and tuned.
 
 Here is a video of the final system
 
-<<<<<<< HEAD
+
 """
-=======
-'''
 
-
->>>>>>> c4a191d9f8a843912c18297fdfd6644cdca25be0
