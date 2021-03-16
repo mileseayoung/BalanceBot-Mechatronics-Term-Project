@@ -59,7 +59,11 @@ class CLDriver:
         @param Torque   Output Torque from controller required to balance board. Units assumed to be N-m
         '''
         
+<<<<<<< HEAD
         Duty_decimal = ((self.resistance)*(1/(self.Kt/1000)) * (1/self.Vdc) * Torque)
+=======
+        Duty_decimal = ((self.resistance / (self.Kt * self.Vdc)) * Torque)
+>>>>>>> 79caedfa2f3103a8ee98fb01ecec42fe6e57bb04
         Duty_percent = Duty_decimal * 100
         return int(Duty_percent)
         

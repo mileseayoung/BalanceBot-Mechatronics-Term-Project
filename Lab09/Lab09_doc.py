@@ -115,8 +115,7 @@ just the platform when working on the initial design
                 
 From the initial run of the program the team got the following result
 
-
-#insert image, graph video text.
+<a href = "https://drive.google.com/file/d/1pfEcK9UwgfAlWt_J4Or2Do03mU3HuY0M/view?usp=sharing">LAB09 Untuned System Video</a>
 
 The team seemed to have significant issue with the platform over correcting and faulting
 even after some tuning was attempted. What the team found was that the values seemed to be off by a factor
