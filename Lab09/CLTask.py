@@ -182,7 +182,7 @@ class CLTask:
                 self.Motorx_feed = self.CL.TtoD(self.InputTx)
                 self.Motory_feed = self.CL.TtoD(self.InputTy)
                 #if self.dbg == True:
-                print('Motor duty cycles: ' + str([self.Motorx_feed,self.Motory_feed]))
+                print('Motor duty cycles: ' + str([-self.Motorx_feed,-self.Motory_feed]))
                 
                 self.Motor1.setDuty(-self.Motorx_feed)
                 self.Motor2.setDuty(-self.Motory_feed)
