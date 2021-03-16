@@ -14,6 +14,7 @@ Created on Tue Nov 24 00:21:08 2020
 """
 
 import pyb
+import math
 
 class EncoderDriver:
     '''
@@ -117,10 +118,10 @@ class EncoderDriver:
     def getAngle(self):
        '''
        @brief        <b> Return encoder angle </b>
-       @return angle Returns the current angular position of the encoder in degrees
+       @return angle Returns the current angular position of the encoder in radians
        '''
     
-       angle = self.tick2deg(self.position)
+       angle = self.tick2rad(self.position)
        
        return angle
     
@@ -154,7 +155,7 @@ class EncoderDriver:
                 return (self.delta - self.overflow)
     
     
-    def tick2deg(self,ticks):
+    def tick2rad(self,ticks):
         '''
         @brief          <b> Convert encoder ticks to degrees </b>
         @details        Converts the position of the encoder from ticks to degrees
@@ -163,9 +164,9 @@ class EncoderDriver:
         '''
     
         ## Position of encoder in degrees
-        theta = int(ticks*(1/self.PPC)*(1/self.CPR)*(360/1))
+        rad = (ticks*(1/self.PPC)*(1/self.CPR)*(2*math.pi))
     
-        return theta
+        return rad
     
     
     def getSpeed(self,interval):
@@ -177,7 +178,7 @@ class EncoderDriver:
        '''
        
        ## calculated speed of the encoder
-       speed = int(self.getDelta()/interval)/(self.PPC*self.CPR)*(360)
+       rps = self.tick2rad(self.getDelta())/interval
        
-       return speed
+       return rps
 

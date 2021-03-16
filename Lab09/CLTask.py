@@ -58,7 +58,7 @@ class CLTask:
         self.currTime = utime.ticks_us()
         
         ## Defines the interval after which another iteration will run in ms
-        self.interval = 10000 # Spitballing here
+        self.interval = 7500 # Spitballing here
         
         ## Defines the starting state for the run() method
         self.state = self.S0_init
@@ -110,6 +110,7 @@ class CLTask:
             # If the interval has been reached
             
             if self.dbg == True:
+                print('')
                 print('Run: {:}, State: {:}, time: {:} us'.format(self.runs,self.state,utime.ticks_diff(self.currTime,self.startTime)))
             
             if self.state == self.S0_init:
@@ -133,12 +134,12 @@ class CLTask:
                 #finding theta from 0 on X axis
                 self.Encoder1.update()
                 self.theta = self.Encoder1.getAngle()
-                self.theta_dot = self.Encoder1.getSpeed(self.interval*1e6)
+                self.theta_dot = self.Encoder1.getSpeed(self.interval/1e6)
                 self.plat_paramX = [self.theta,self.theta_dot]
                 #finding theta from 0 on Y axis
                 self.Encoder2.update()
                 self.phi = self.Encoder2.getAngle()
-                self.phi_dot = self.Encoder2.getSpeed(self.interval*1e6)
+                self.phi_dot = self.Encoder2.getSpeed(self.interval/1e6)
                 self.plat_paramY = [self.phi,self.phi_dot]
                 if self.dbg == True:
                     print('theta and theta_dot: ' + str(self.plat_paramX))
@@ -149,25 +150,24 @@ class CLTask:
                 self.last_ball_pos = self.current_ball_pos
                 self.current_ball_pos = self.TouchObject.read()
                 #If the bal is still detected as being on the platform
-                #if self.current_ball_pos[0] == True:
-                self.X_ball = self.current_ball_pos[1]
-                self.Y_ball = self.current_ball_pos[2]
-                self.X_ball_dot = (self.current_ball_pos[1] - self.last_ball_pos[1]) / (self.interval*1e6)
-                self.Y_ball_dot = (self.current_ball_pos[2] - self.last_ball_pos[2]) / (self.interval*1e6)
+                if self.current_ball_pos[0] == True:
+                    self.X_ball = self.current_ball_pos[1]
+                    self.Y_ball = self.current_ball_pos[2]
+                    self.X_ball_dot = (self.current_ball_pos[1] - self.last_ball_pos[1]) / (self.interval/1e6)
+                    self.Y_ball_dot = (self.current_ball_pos[2] - self.last_ball_pos[2]) / (self.interval/1e6)
                
-                self.ball_paramX = [self.X_ball,self.X_ball_dot]
-                self.ball_paramY = [self.Y_ball,self.Y_ball_dot]
-                
-                if self.dbg == True:
-                    print('x and x_dot: ' + str(self.ball_paramX))
-                    print('y and y_dot: ' + str(self.ball_paramY))
-                
-                self.transitionTo(self.S2_control)
-                #else:
-                 #   print('Ball no longer detected - program will exit')
-                  #  self.Motor1.disable()
-                   # self.Motor2.disable()
-                    #sys.exit()
+                    self.ball_paramX = [self.X_ball,self.X_ball_dot]
+                    self.ball_paramY = [self.Y_ball,self.Y_ball_dot]
+                    
+                    if self.dbg == True:
+                        print('x and x_dot: ' + str(self.ball_paramX))
+                        print('y and y_dot: ' + str(self.ball_paramY))
+                    
+                    self.transitionTo(self.S2_control)
+                else:
+                    print('Ball not detected')
+                    self.Motor1.setDuty(0)
+                    self.Motor2.setDuty(0)
                 
             #Controller state. Where motor values are found and applied
             elif self.state == self.S2_control:
@@ -181,11 +181,11 @@ class CLTask:
                 
                 self.Motorx_feed = self.CL.TtoD(self.InputTx)
                 self.Motory_feed = self.CL.TtoD(self.InputTy)
-                if self.dbg == True:
-                    print('Motor duty cycles: ' + str([self.Motorx_feed,self.Motory_feed]))
+                #if self.dbg == True:
+                print('Motor duty cycles: ' + str([-self.Motorx_feed,-self.Motory_feed]))
                 
-                self.Motor2.setDuty(self.Motory_feed)
-                self.Motor1.setDuty(self.Motorx_feed)
+                self.Motor1.setDuty(-self.Motorx_feed)
+                self.Motor2.setDuty(-self.Motory_feed)
                 self.transitionTo(self.S1_update)
                 
             # Define time after which the data collection task will commence

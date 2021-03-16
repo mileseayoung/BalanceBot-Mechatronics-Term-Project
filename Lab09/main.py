@@ -124,28 +124,38 @@ IMU.mode(NDOF_MODE)
 # MOTOR CONTROLLER
 
 ## First controller gain for closed-loop feedback
-K1 = -.09
+<<<<<<< HEAD
+K1 = -0.0005 # units N-s
 ## Second controller gain for closed-loop feedback
-K2 = -.02
+K2 = -0.0002 # units N-m-s
 ## Third controller gain for closed-loop feedback
-K3 = -.1
+K3 = -0.0003 # units N
 ## Fourth controller gain for closed-loop feedback
-K4 = -.04
+K4 = -0.0004 #units N-m
+=======
+K1 = -.0128
+## Second controller gain for closed-loop feedback
+K2 = -0.0007
+## Third controller gain for closed-loop feedback
+K3 = -.0709
+## Fourth controller gain for closed-loop feedback
+K4 = -.02
+>>>>>>> 79caedfa2f3103a8ee98fb01ecec42fe6e57bb04
 
  ## Measured internal motor resistance, units Ohms
 resistance = 2.21
 
-## Measured motor torque constant, units mNm/A
+## Measured motor torque constant, units mN-m/A
 Kt = 13.8
 
 ## DC voltage supplied to motor, units V
-Vdc = 3.3
+Vdc = 12
 
 ## Closed-loop object  
 CLObject = CLDriver(K1,K2,K3,K4,resistance,Kt,Vdc)
 
 ## Closed-loop FSM Task
-CLTask = CLTask(CLObject,Motor1,Motor2,Encoder1,Encoder2,TouchObject,dbg=True)
+CLTask = CLTask(CLObject,Motor1,Motor2,Encoder1,Encoder2,TouchObject,dbg=False)
 
 # RUN CONTROLLER FSM INDEFINITELY
 Motor1.enable()
