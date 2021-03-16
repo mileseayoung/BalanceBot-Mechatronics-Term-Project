@@ -2,7 +2,7 @@
 @file           MotorDriver.py
 @author         Craig Kimball, Miles Young
 @date           3/11/2021
-@brief          <b> A driver for DC motors </b>\n
+@brief          <b> DC Motor Driver Class </b>\n
 @details        This code contains a MotorDriver class which allows for the creation of a motor object. It includes 
                 methods for enabling and disabling the motor, as well as setting the duty cycle.\n
                 Sourcecode: https://bitbucket.org/MilesYoung/me305_me405_labs/src/master/Lab%207/MotorDriver.py
@@ -13,12 +13,13 @@ import utime
 
 class MotorDriver:
     '''
-    @brief          This class implements a motor driver for the ME305/405 board.
+    @brief          <b> Motor driver class </b>
     '''
     
     def __init__(self,motorNum,pinSleep,pinFault,pinIN1,channel1,pinIN2,channel2,timNum):
         '''
-        @brief          Creates a motor driver by initializing GPIO pins and turning the motor off for safety.
+        @brief          <b>Motor driver constructor </b>  
+        @details        This constructor creates a motor driver by initializing GPIO pins and turning the motor off for safety.
         @param motorNum A number identifier for the motor object.
         @param pinSleep A pyb.Pin object to use as the enable pin.
         @param pinFault A pyb.Pin object to use with an external interrupt to sense current overloads from the motor.
@@ -58,6 +59,8 @@ class MotorDriver:
         ## Defines the timer channel for pinIN2 PWM function
         self.timch2 = self.timer.channel(channel2,pyb.Timer.PWM, pin=self.pinIN2)
         
+        ## Flag used to signal if fault external interrupt has been triggered. It is set to false upon initialization.
+        self.faultFlag = False
         
     def enable(self):
         '''
@@ -66,16 +69,16 @@ class MotorDriver:
         '''
         
         # Disable fault external interrupt momentarily
-        #self.extint.disable()
+        self.extint.disable()
         
         #print('Enabling Motor ' + str(self.motorNum))
         self.pinSleep.high()
         
         # Enable fault external interrupt again
 
-        #utime.sleep_us(100)
+        utime.sleep_us(100)
 
-        #self.extint.enable()
+        self.extint.enable()
         
     def disable(self):
         '''
@@ -117,10 +120,11 @@ class MotorDriver:
         self.timch1.pulse_width_percent(0)
         self.timch2.pulse_width_percent(0)
 
-    def faultInterrupt(self,fault_pin):
+    def faultInterrupt(self,faultPin):
         '''
-        @brief      <b>Fault Pin External Interrupt</b>
-        @Details    External interrupt method which is triggered when the motor H-bridge fault pin goes low.
+        @brief          <b> Fault Pin External Interrupt</b>
+        @Details        External interrupt method which is triggered when the motor H-bridge fault pin goes low.
+        @param faultPin The pin on the hardware which is used to trigger the external interrupt method.
         '''
         
         # Immediately disable the motor

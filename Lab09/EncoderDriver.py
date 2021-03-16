@@ -5,7 +5,7 @@ Created on Tue Nov 24 00:21:08 2020
 @file               EncoderDriver.py
 @date               10/13/2020
 @author             Miles Young
-@brief              A class which interprets encoder output to determine angular position or velocity.\n
+@brief              <b> Encoder Driver Class</b>\n
 @details            This driver class constructs an encoder object which is capable 
                     of updating the angular position and velocity of the output 
                     shaft of a motor. Other methods include setting the position, 
@@ -14,15 +14,16 @@ Created on Tue Nov 24 00:21:08 2020
 """
 
 import pyb
+import math
 
 class EncoderDriver:
     '''
-    @brief          A class for intepreting encoder output
+    @brief          <b> Encoder Driver Class </b>
     '''
     
     def __init__(self,pinA,pinB,timer,PPC,CPR,gearRatio):
         '''
-       @brief           Constructs Encoder class
+       @brief           <b> Encoder class constructor </b>
        @details         This method constructs the Encoder object by assigning
                         pin and timer input parameters and defining initial
                         states of pins
@@ -82,7 +83,8 @@ class EncoderDriver:
 
     def update(self):
         '''
-        @brief          Updates the encoder position after a set time interval
+        @brief      <b> Update encoder position </b>
+        @details    Updates the encoder position after a set time interval
         '''
         
         # Update current encoder count
@@ -106,15 +108,28 @@ class EncoderDriver:
         
     def getPosition(self):
         '''
-        @brief          Returns the current position of encoder
+        @brief               <b> Return encoder position</b>
+        @return position     Returns the current position of encoder in encoder ticks
         '''
-       
+        
         return self.position
         
-        
+    
+    def getAngle(self):
+       '''
+       @brief        <b> Return encoder angle </b>
+       @return angle Returns the current angular position of the encoder in degrees
+       '''
+    
+       angle = self.tick2deg(self.position)
+       
+       return angle
+    
+    
     def setPosition(self,newPosition):
         '''
-        @brief              Sets the encoder position according to the desired user input parameter 'angle'
+        @brief              <b> Set current relative encoder position </b>
+        @details            Sets the encoder position according to the desired user input parameter 'angle'
         @param newPosition  The angle to which the encoder will be set. must be an integer
         '''
         
@@ -123,7 +138,8 @@ class EncoderDriver:
         
     def getDelta(self):
         '''
-        @brief          Calculates the difference between the current and previous position counts
+        @brief      <b> Calculate delta between encoder updates </b>        
+        @details    Calculates the difference between the current and previous position counts
         '''        
         # Determine if overflow or underflow has occured
         if(abs(self.delta) < (self.overflow/2)):
@@ -141,7 +157,10 @@ class EncoderDriver:
     
     def tick2deg(self,ticks):
         '''
-        @brief          Converts the position of the encoder from ticks to degrees
+        @brief          <b> Convert encoder ticks to degrees </b>
+        @details        Converts the position of the encoder from ticks to degrees
+        @param ticks    The position of the encoder in ticks. This is most easily 
+                        obtained from the self.position attribute.
         '''
     
         ## Position of encoder in degrees
@@ -150,14 +169,16 @@ class EncoderDriver:
         return theta
     
     
-    def tick2rpm(self,interval):
+    def delta2radpersec(self,delta,interval):
        '''
-       @brief Determines the angular velocity of the motor according to the encoder PPC (pulses per cycle), CPR (cycles per revolution), and gear ratio which were input into the object constructor, as well as the time interval over which the encoder delta was calculated.
-       @param interval  The interval of time over which delta occurs
+       @brief           <b> Convert encoder delta to radians per second </b>
+       @details         Determines the angular velocity of the motor according to the encoder PPC (pulses per cycle), CPR (cycles per revolution), and gear ratio which were input into the object constructor, as well as the time interval over which the encoder delta was calculated.
+       @param delta     The difference in encoder position in ticks. Most easily obtained from self.getDelta() method.
+       @param interval  The interval of time over which delta occurs, which must be in microseconds
        '''
        
        ## calculated speed of the encoder
-       rpms = (self.getDelta()/interval)*(60000/1)/(self.PPC*self.CPR)
+       radpersec = (delta/interval)*(60000000/1)/(self.PPC*self.CPR)*(2*math.pi)*(1/60)
        
-       return rpms
+       return radpersec
 
