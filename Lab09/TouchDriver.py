@@ -196,9 +196,9 @@ if __name__ == "__main__":
     pinym = Pin(Pin.cpu.A0)
     
     # Define platform dimensions
-    width = 108
-    length = 186
-    center = [105,67]
+    width = 0.108
+    length = 0.186
+    center = [0.105,0.067]
     
     # Create touch panel driver object
     touchObject = TouchDriver(pinxp,pinxm,pinyp,pinym,width,length,center)

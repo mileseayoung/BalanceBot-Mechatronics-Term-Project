@@ -56,10 +56,10 @@ class CLDriver:
         @brief          <b> Converts Torque to Duty cycle </b>
         @details        Takes a torque value supplied by the controller, for correcting balance, and converts
                         it to a duty cycle that can be sent to the motor through PWM signal
-        @param Torque   Output Torque from controller required to balance board. Units assumed to be mN-m
+        @param Torque   Output Torque from controller required to balance board. Units assumed to be N-m
         '''
         
-        Duty_decimal = ((self.resistance / (self.Kt * self.Vdc)) * Torque)*100
+        Duty_decimal = ((self.resistance)*(1/(self.Kt/1000)) * (1/self.Vdc) * Torque)
         Duty_percent = Duty_decimal * 100
         return int(Duty_percent)
         
@@ -71,8 +71,8 @@ class CLDriver:
                             the form T = -k*x to spit out a motor torque value for the necessary axis.
         @param gains        A matrix Of gain values K1 - K4 for the controller. input as a list
         @param plat_param   Platform parameters for the controller must be in form [x_dot,Theta_dot,x,theta]
-        @return T           Returns the updated torque output from the control loop in units of mN-m
+        @return T           Returns the updated torque output from the control loop in units of N-m
         '''
-        T = (plat_param[0] * (-self.K4)) + ((-self.K2)*plat_param[1] + ((ball_param[0])*(-self.K3)) + ((ball_param[1])*(-self.K1)))
+        T = plat_param[0]*(-self.K4) + plat_param[1]*(-self.K2) + ball_param[0]*(-self.K3) + ball_param[1]*(-self.K1)
         
         return T
