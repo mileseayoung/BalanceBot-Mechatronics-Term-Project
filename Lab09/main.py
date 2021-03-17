@@ -123,14 +123,14 @@ IMU.mode(NDOF_MODE)
 
 # MOTOR CONTROLLER
 
-## First controller gain for closed-loop feedback
-K1 = -0.05 # units N-s
-## Second controller gain for closed-loop feedback
-K2 = -00.02 # units N-m-s
-## Third controller gain for closed-loop feedback
-K3 = -0.03 # units N
-## Fourth controller gain for closed-loop feedback
-K4 = -0.2 #units N-m
+## State-space controller gain assigned to time derivative of ball position for closed-loop feedback
+K1 = 0.0 # units N-s
+## State-space controller gain assigned to time derivative of platform angle for closed-loop feedback
+K2 = 200 # units N-m-s
+## State-space controller gain assigned to ball position for closed-loop feedback
+K3 = 0.0 # units N
+## State-space controller gain assigned to platform angle for closed-loop feedback
+K4 = 500 #units N-m
 
  ## Measured internal motor resistance, units Ohms
 resistance = 2.21

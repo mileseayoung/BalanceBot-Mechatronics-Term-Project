@@ -193,23 +193,25 @@ class CLTask:
                     self.InputTy = self.CL.Controller(self.plat_paramX,self.ball_paramY)
                     self.InputTx = self.CL.Controller(self.plat_paramY,self.ball_paramX)
                     
-                    self.Motorx_feed = self.CL.TtoD(self.InputTx)
-                    self.Motory_feed = self.CL.TtoD(self.InputTy)
-                    #if self.dbg == True:
-                    print('Motor duty cycles: ' + str([self.Motorx_feed,self.Motory_feed]))
-                    
-                    self.timeArray.append(utime.ticks_diff(self.currTime,self.startTime))
-                    self.dutyArray1.append(self.Motory_feed)
-                    self.dutyArray2.append(self.Motorx_feed)
-                    
-                    #self.Motor2.setDuty(self.Motorx_feed)
-                    #self.Motor1.setDuty(self.Motory_feed)
-                    #self.transitionTo(self.S1_update)
-               
                 else:
                     print('Ball not detected')
-                    self.Motor1.setDuty(0)
-                    self.Motor2.setDuty(0) 
+                    self.InputTy = self.CL.zero(self.plat_paramX)
+                    self.InputTx = self.CL.zero(self.plat_paramX)
+                    
+                self.Motorx_feed = self.CL.TtoD(self.InputTy)
+                self.Motory_feed = self.CL.TtoD(self.InputTx)          
+                
+                #if self.dbg == True:
+                print('Motor duty cycles: ' + str([self.Motorx_feed,self.Motory_feed]))
+                
+                self.timeArray.append(utime.ticks_diff(self.currTime,self.startTime))
+                self.dutyArray1.append(self.Motory_feed)
+                self.dutyArray2.append(self.Motorx_feed)
+                
+                self.Motor2.setDuty(self.Motorx_feed)
+                self.Motor1.setDuty(self.Motory_feed)
+                #self.transitionTo(self.S1_update)
+                
                
             # Define time after which the data collection task will commence
             self.nextTime = utime.ticks_add(self.nextTime,self.interval)
