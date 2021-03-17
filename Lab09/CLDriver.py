@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 """
-@file       TouchDriver.py
+@file       CLDriver.py
 @author     Craig Kimball, Miles Young
-@date       02/25/2021
-@brief      <b> Resistive Touch Panel Driver </b> \n
+@date       03/10/2021
+@brief      <b> Closed-loop Feedback Controller Driver </b> \n
 @details    This closed-loop feedback controller driver class uses the state-space 
             model with four gains corresponding to the four variables of the simplified 
             dynamic system. It also requires mechanical and electrical characteristics 
@@ -28,6 +28,9 @@ class CLDriver:
         @param K2   Second state-space controller gain
         @param K3   Third state-space controller gain
         @param K4   Fourth state-space controller gain
+        @param resistance The internal resistance of the motor that is to be controlled
+        @param Kt   Torque constant of the motor
+        @param Vdc  DC voltage used to drive the motor
         '''
         ## Controller gain 1 from constructor
         self.K1 = K1
@@ -57,21 +60,22 @@ class CLDriver:
         @details        Takes a torque value supplied by the controller, for correcting balance, and converts
                         it to a duty cycle that can be sent to the motor through PWM signal
         @param Torque   Output Torque from controller required to balance board. Units assumed to be N-m
+        @returns duty   The duty cycle calculated from the torque input as an integer percent
         '''
         
         Duty_decimal = (self.resistance / (self.Kt * self.Vdc)) * Torque
 
-        Duty_percent = Duty_decimal * 100
-        return int(Duty_percent)
+        duty = int(Duty_decimal * 100)
+        return duty
         
     
     def Controller(self,plat_param,ball_param):
         '''
         @brief              <b> Closed Loop Controller for getting motor torques </b>
-        @details            Takes a gain matrix input and platform parameters matrix both as an array. Uses
-                            the form T = -k*x to spit out a motor torque value for the necessary axis.
-        @param gains        A matrix Of gain values K1 - K4 for the controller. input as a list
-        @param plat_param   Platform parameters for the controller must be in form [x_dot,Theta_dot,x,theta]
+        @details            Requires user-specified gains and platform and ball parameter matrices. Uses
+                            the form T = -k*x to calculate a motor torque value for the necessary axis.
+        @param plat_param   Platform parameters for the controller must be in form [angle, angular speed]
+        @param ball_param   Ball parameters for the controller must be in the form [position, speed]
         @return T           Returns the updated torque output from the control loop in units of N-m
         '''
         T = plat_param[0]*(-self.K4) + plat_param[1]*(-self.K2) + ball_param[0]*(-self.K3) + ball_param[1]*(-self.K1)
@@ -81,10 +85,9 @@ class CLDriver:
     def zero(self,plat_param):
         '''
         @brief              <b> Closed Loop Controller for getting motor torques </b>
-        @details            Takes a gain matrix input and platform parameters matrix both as an array. Uses
-                            the form T = -k*x to spit out a motor torque value for the necessary axis.
-        @param gains        A matrix Of gain values K1 - K4 for the controller. input as a list
-        @param plat_param   Platform parameters for the controller must be in form [x_dot,Theta_dot,x,theta]
+        @details            Requires user-specified gains and platform parameter matrix. Uses
+                            the form T = -k*x to calculate a motor torque value for the necessary axis.
+        @param plat_param   Platform parameters for the controller must be in form [angle, angular speed]
         @return T           Returns the updated torque output from the control loop in units of N-m
         '''
         T = plat_param[0]*(-self.K4) + plat_param[1]*(-self.K2)
