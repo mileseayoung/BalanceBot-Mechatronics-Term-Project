@@ -14,7 +14,7 @@
             of the point of contact on the panel from the center coordinates; 
             zscan() determines whether an object is in contact with the panel; and 
             read() scans all three consecutively and returns a tuple containing 
-            their readings.
+            their readings. Source Code: https://bitbucket.org/MilesYoung/lab-4-term-project/src/master/Lab09/TouchDriver.py
 """
 
 from pyb import Pin, ADC

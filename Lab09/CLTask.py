@@ -2,6 +2,7 @@
 """
 @file       CLTask.py
 @author     Craig Kimball, Miles Young
+<<<<<<< HEAD
 @date       03/10/2021
 @brief      <b> Closed-loop Feedback Controller Task </b> \n
 @details    This script contains a task class used to implement closed-loop feedback 
@@ -12,6 +13,13 @@
             zero and the initial ball position is recorded, and the second is an 
             update/control state, in which measurements are updated, secondary values 
             are calculated from updated measurements, and the control loop is implemented.
+=======
+@date       02/25/2021
+@brief      <b> Resistive Touch Panel Driver </b> \n
+@details    This State space program controlls the operation of the Balance board controller.
+The Task takes in inputs for the Controller, Motor and Encoder objects and calculates necessary duty cycle to balance the platform.
+Source Code: https://bitbucket.org/MilesYoung/lab-4-term-project/src/master/Lab09/CLTask.py
+>>>>>>> b8ff90c5248ae510b6ae31aa658582f3e0630553
 """
 
 import utime
@@ -32,6 +40,7 @@ class CLTask:
     
     def __init__(self,CLObject1,CLObject2,MotorObject1,MotorObject2,EncoderObject1,EncoderObject2,TouchPanelObject,dbg=False):
         '''
+<<<<<<< HEAD
         @brief      <b> Control Task Constructor </b>
         @details    The constructor requires two closed-loop driver objects, two 
                     motor driver objects, two encoder objects, and a touch panel object. 
@@ -48,6 +57,19 @@ class CLTask:
         @param TouchPanelObject     Object of TouchDriver class
         @param dbg                  Optional constructor parameter which enables 
                                     debugging print traces. Defaults to False.
+=======
+        @brief      <b> Initilization of variables for State space</b>
+        @details    Takes in all input parameters necessary to calculate corrected duty cycles for motors on balance board
+        @param CLObject ...
+        @param MotorObject1     Motor Object for controlling X axis
+        @param MotorObject2     Motor Obkect for controlling Y axis
+        @param EncoderObject1   Encoder object for tracking X axis motor rotation
+        @param EncoderObject2   Encoder object for tracking Y axis motor rotation
+        @param TouchPanelObject Touch panel object that uses TouchPanel Driver to read position on board in m
+        @param IMUObject    Object for use of IMU sensor (NOT USED)
+        @param i2c  i2c address controller (NOT USED)
+        @param address  address of IMU sensor (NOT USED)
+>>>>>>> b8ff90c5248ae510b6ae31aa658582f3e0630553
         '''
         
         
@@ -270,6 +292,7 @@ class CLTask:
                 if self.dbg == True:
                     print('Motor duty cycles: ' + str([self.Motorx_feed,self.Motory_feed]))
                 
+<<<<<<< HEAD
                 if self.runs/100 == int:
                     # Store time data in an array in seconds
                     self.timeArray.append(int(utime.ticks_diff(self.currTime,self.startTime)/1e6))
@@ -277,6 +300,14 @@ class CLTask:
                     self.dutyArray1.append(int(self.Motory_feed))
                     # Store motor 2 duty cycle data in an array in percent
                     self.dutyArray2.append(int(self.Motorx_feed))
+=======
+                #if self.dbg == True:
+                print('Motor duty cycles: ' + str([self.Motorx_feed,self.Motory_feed]))
+                
+            #    self.timeArray.append(int(utime.ticks_diff(self.currTime,self.startTime)/1000))
+                self.dutyArray1.append(int(self.Motory_feed))
+                self.dutyArray2.append(int(self.Motorx_feed))
+>>>>>>> b8ff90c5248ae510b6ae31aa658582f3e0630553
                 
                 # Set the motor duty cycles according to updated controller values
                 self.Motor2.setDuty(self.Motorx_feed)
