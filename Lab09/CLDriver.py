@@ -77,3 +77,16 @@ class CLDriver:
         T = plat_param[0]*(-self.K4) + plat_param[1]*(-self.K2) + ball_param[0]*(-self.K3) + ball_param[1]*(-self.K1)
         
         return T
+
+    def zero(self,plat_param):
+        '''
+        @brief              <b> Closed Loop Controller for getting motor torques </b>
+        @details            Takes a gain matrix input and platform parameters matrix both as an array. Uses
+                            the form T = -k*x to spit out a motor torque value for the necessary axis.
+        @param gains        A matrix Of gain values K1 - K4 for the controller. input as a list
+        @param plat_param   Platform parameters for the controller must be in form [x_dot,Theta_dot,x,theta]
+        @return T           Returns the updated torque output from the control loop in units of N-m
+        '''
+        T = plat_param[0]*(-self.K4) + plat_param[1]*(-self.K2)
+        
+        return T

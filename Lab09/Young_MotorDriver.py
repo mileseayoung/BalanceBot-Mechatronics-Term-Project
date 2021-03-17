@@ -96,10 +96,10 @@ class MotorDriver:
         @param duty     The desired duty cycle, either positive for forward movement or negative for reverse movement
         '''
         
-        if (duty > 100):
+        if (duty >= 100):
             self.timch1.pulse_width_percent(100)
             self.timch2.pulse_width_percent(0)
-        elif(duty < -100):
+        elif(duty <= -100):
             self.timch1.pulse_width_percent(0)
             self.timch2.pulse_width_percent(100)
         
