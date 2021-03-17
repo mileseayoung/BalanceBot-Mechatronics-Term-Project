@@ -101,7 +101,7 @@ class EncoderDriver:
                 self.position = (self.position + (self.delta + self.overflow))
             elif(self.delta > 0):
                 # In the case of underflow
-                self.position = int(self.position + (self.delta - self.overflow))
+                self.position = (self.position + (self.delta - self.overflow))
         
         # Current count becomes previous count for next iteration
         self.prev_count = self.curr_count

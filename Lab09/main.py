@@ -124,23 +124,13 @@ IMU.mode(NDOF_MODE)
 # MOTOR CONTROLLER
 
 ## First controller gain for closed-loop feedback
-<<<<<<< HEAD
-K1 = -0.0005 # units N-s
+K1 = -0.05 # units N-s
 ## Second controller gain for closed-loop feedback
-K2 = -0.0002 # units N-m-s
+K2 = -00.02 # units N-m-s
 ## Third controller gain for closed-loop feedback
-K3 = -0.0003 # units N
+K3 = -0.03 # units N
 ## Fourth controller gain for closed-loop feedback
-K4 = -0.0004 #units N-m
-=======
-K1 = -.0128
-## Second controller gain for closed-loop feedback
-K2 = -0.0007
-## Third controller gain for closed-loop feedback
-K3 = -.0709
-## Fourth controller gain for closed-loop feedback
-K4 = -.02
->>>>>>> 79caedfa2f3103a8ee98fb01ecec42fe6e57bb04
+K4 = -0.2 #units N-m
 
  ## Measured internal motor resistance, units Ohms
 resistance = 2.21
@@ -155,7 +145,7 @@ Vdc = 12
 CLObject = CLDriver(K1,K2,K3,K4,resistance,Kt,Vdc)
 
 ## Closed-loop FSM Task
-CLTask = CLTask(CLObject,Motor1,Motor2,Encoder1,Encoder2,TouchObject,dbg=False)
+CLTask = CLTask(CLObject,Motor1,Motor2,Encoder1,Encoder2,TouchObject,dbg=True)
 
 # RUN CONTROLLER FSM INDEFINITELY
 Motor1.enable()
@@ -166,9 +156,18 @@ try:
         CLTask.run()
         
 except KeyboardInterrupt:
-        Motor1.disable()
-        Motor2.disable()
-        print('Balancing concluded')
+    Motor1.disable()
+    Motor2.disable()
+    
+    with open ("ClosedLoopResponse.csv","w") as file:
+        # Assign column headers
+        file.write('Time [us],Motor 1 Duty Cycle [%], Motor 2 Duty Cycle [%]\n')
+        # Populate .csv columns with data
+        for n in range(len(CLTask.timeArray)):
+            file.write('{:},{:},{:}\n'.format(CLTask.timeArray[n],CLTask.dutyArray1[n],CLTask.dutyArray2[n]))
+    
+    print('Closed-loop response recorded as "ClosedLoopResponse.csv"')
+    print('Balancing concluded')
 
    
     
