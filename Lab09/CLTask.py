@@ -4,7 +4,9 @@
 @author     Craig Kimball, Miles Young
 @date       02/25/2021
 @brief      <b> Resistive Touch Panel Driver </b> \n
-@details    This
+@details    This State space program controlls the operation of the Balance board controller.
+The Task takes in inputs for the Controller, Motor and Encoder objects and calculates necessary duty cycle to balance the platform.
+Source Code: https://bitbucket.org/MilesYoung/lab-4-term-project/src/master/Lab09/CLTask.py
 """
 
 import utime
@@ -22,17 +24,17 @@ class CLTask:
     
     def __init__(self,CLObject1,CLObject2,MotorObject1,MotorObject2,EncoderObject1,EncoderObject2,TouchPanelObject,dbg=False):
         '''
-        @brief      <b> </b>
-        @details    ...
+        @brief      <b> Initilization of variables for State space</b>
+        @details    Takes in all input parameters necessary to calculate corrected duty cycles for motors on balance board
         @param CLObject ...
-        @param MotorObject1     ...
-        @param MotorObject2     ...
-        @param EncoderObject1     ...
-        @param EncoderObject2     ...
-        @param TouchPanelObject   ...
-        @param IMUObject    ...
-        @param i2c  ...
-        @param address  ...
+        @param MotorObject1     Motor Object for controlling X axis
+        @param MotorObject2     Motor Obkect for controlling Y axis
+        @param EncoderObject1   Encoder object for tracking X axis motor rotation
+        @param EncoderObject2   Encoder object for tracking Y axis motor rotation
+        @param TouchPanelObject Touch panel object that uses TouchPanel Driver to read position on board in m
+        @param IMUObject    Object for use of IMU sensor (NOT USED)
+        @param i2c  i2c address controller (NOT USED)
+        @param address  address of IMU sensor (NOT USED)
         '''
         
         self.CL1 = CLObject1
@@ -203,7 +205,7 @@ class CLTask:
                 #if self.dbg == True:
                 print('Motor duty cycles: ' + str([self.Motorx_feed,self.Motory_feed]))
                 
-                self.timeArray.append(int(utime.ticks_diff(self.currTime,self.startTime)/1000))
+            #    self.timeArray.append(int(utime.ticks_diff(self.currTime,self.startTime)/1000))
                 self.dutyArray1.append(int(self.Motory_feed))
                 self.dutyArray2.append(int(self.Motorx_feed))
                 

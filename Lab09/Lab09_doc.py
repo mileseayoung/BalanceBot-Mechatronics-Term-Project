@@ -131,8 +131,9 @@ Once that was corrected gains were reimplemented. The new gain matrix showed [-0
 
 From this video you can see that the system is now responding correctly to the ball rolling around the board but at the wrong magnitude. The team, after some discussion with other teams in office hours found
 that loosening the joint connecting the push rod to the motor arm decreased stiction in the system and improved motor response sensitivity. Further tuning
-was done with the loosened joint. I also found that my motors did not seem identical in their response to certain gain values. If I had more time to work on this project I would write the main such that it operated one axis
-only and  then run to instances of it so that I could give each motor different gains. New tuned values were found [K1,K2,K3,K4]
+was done with the loosened joint. I also found that my motors did not seem identical in their response to certain gain values. To adjust this the team split up the CL
+driver task so that it controlled only one axis and then have two controllers run, so that seperate gain sets could be applied to the motors
+to try to offset the differences in power output between them
 
 Here is a video of the final system
 
