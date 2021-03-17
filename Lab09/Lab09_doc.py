@@ -3,13 +3,13 @@
 @file Lab09_doc.py
 
 @author: Miles Young Craig Kimball
-@date 3/11/21
+@date 3/16/21
 @page Lab09_sec Balance Board Project
 @section Intro_sec Background on Balance Board
 The final project for ME405 is to utilize all the skills learned in the class, and built
 drivers throughout the quarter to implement a closed loop controller on hardware to create
 a balancing board that can keep a ball balanced in the center of a platform. Pictured below is the 
-hardware used for this project
+hardware used for this project. My partner for this Project was Miles Young.
 
 @image html Lab09_pushrod.png width=500cm
 
@@ -113,7 +113,12 @@ just the platform when working on the initial design
                 Motor2.setDuty(Motory_feed)
                 state = 1
                 
-From the initial run of the program the team got the following result
+From the initial run of the program the team got the following result by using their finger to simulate the ball resting at 0,0. You can see that the platform reponds
+to angular disturbances and attempts to correct back to center
+
+<a href = "https://drive.google.com/file/d/1Fq8Grg7ylXtc2rLPHbFJ1QTawP_9tCU8/view?usp=sharing">Lab09 Platform only balancing</a>
+
+Implenting the ball into the system, a lot of stability was lost from untuned values for K1 and K3
 
 <a href = "https://drive.google.com/file/d/1pfEcK9UwgfAlWt_J4Or2Do03mU3HuY0M/view?usp=sharing">LAB09 Untuned System Video</a>
 
@@ -126,7 +131,8 @@ Once that was corrected gains were reimplemented. The new gain matrix showed [-0
 
 From this video you can see that the system is now responding correctly to the ball rolling around the board but at the wrong magnitude. The team, after some discussion with other teams in office hours found
 that loosening the joint connecting the push rod to the motor arm decreased stiction in the system and improved motor response sensitivity. Further tuning
-was done with the loosened joint. New tuned values were found [K1,K2,K3,K4]
+was done with the loosened joint. I also found that my motors did not seem identical in their response to certain gain values. If I had more time to work on this project I would write the main such that it operated one axis
+only and  then run to instances of it so that I could give each motor different gains. New tuned values were found [K1,K2,K3,K4]
 
 Here is a video of the final system
 
