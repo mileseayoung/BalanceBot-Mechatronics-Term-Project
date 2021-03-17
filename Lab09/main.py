@@ -145,7 +145,7 @@ Vdc = 12
 CLObject = CLDriver(K1,K2,K3,K4,resistance,Kt,Vdc)
 
 ## Closed-loop FSM Task
-CLTask = CLTask(CLObject,Motor1,Motor2,Encoder1,Encoder2,TouchObject,dbg=False)
+CLTask = CLTask(CLObject,Motor1,Motor2,Encoder1,Encoder2,TouchObject,dbg=True)
 
 # RUN CONTROLLER FSM INDEFINITELY
 Motor1.enable()
