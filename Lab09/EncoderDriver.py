@@ -3,13 +3,16 @@
 Created on Tue Nov 24 00:21:08 2020
 
 @file               EncoderDriver.py
-@date               10/13/2020
+@date               3/10/2021
 @author             Miles Young
 @brief              <b> Encoder Driver Class</b>\n
-@details            This driver class constructs an encoder object which is capable 
-                    of updating the angular position and velocity of the output 
-                    shaft of a motor. Other methods include setting the position, 
-                    returning the difference between previous and current positions.\n
+@details            This is an updated version of an encoder driver class created 
+                    for ME 305. This driver class constructs an encoder object 
+                    which is capable of updating the angular position and velocity 
+                    of the output shaft of a motor. Other methods include setting 
+                    the position, returning the difference between previous and 
+                    current positions. Updates include getAngle(), getSpeed(), and 
+                    tick2rad() methods. tick2rad() replaces the tick2deg() method.\n
                     Sourcecode: https://bitbucket.org/MilesYoung/me305_me405_labs/src/master/Lab%207/MotorEncoder.py
 """
 
@@ -138,8 +141,9 @@ class EncoderDriver:
         
     def getDelta(self):
         '''
-        @brief      <b> Calculate delta between encoder updates </b>        
-        @details    Calculates the difference between the current and previous position counts
+        @brief          <b> Calculate delta between encoder updates </b>        
+        @details        Calculates the difference between the current and previous position counts
+        @return delta   Returns the correct difference between current and previous encoder positions in ticks
         '''        
         # Determine if overflow or underflow has occured
         if(abs(self.delta) < (self.overflow/2)):
@@ -159,8 +163,8 @@ class EncoderDriver:
         '''
         @brief          <b> Convert encoder ticks to degrees </b>
         @details        Converts the position of the encoder from ticks to degrees
-        @param ticks    The position of the encoder in ticks. This is most easily 
-                        obtained from the self.position attribute.
+        @param ticks    The position or delta of the encoder in ticks. This is most easily obtained from the self.position attribute for position or self.getDelta() method for position delta
+        @return rad     Returns the position or delta in radians
         '''
     
         ## Position of encoder in degrees
@@ -174,7 +178,7 @@ class EncoderDriver:
        @brief           <b> Convert encoder delta to degrees per second </b>
        @details         Determines the angular velocity of the motor according to the encoder PPC (pulses per cycle), CPR (cycles per revolution), and gear ratio which were input into the object constructor, as well as the time interval over which the encoder delta was calculated.
        @param interval  The interval of time over which delta occurs, which must be in seconds
-       @param speed     Returns the speed of the encoder in deg/s   
+       @return speed    Returns the speed of the encoder in deg/s   
        '''
        
        ## calculated speed of the encoder
