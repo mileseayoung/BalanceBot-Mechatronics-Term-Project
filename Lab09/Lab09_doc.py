@@ -120,7 +120,13 @@ From the initial run of the program the team got the following result
 The team seemed to have significant issue with the platform over correcting and faulting
 even after some tuning was attempted. What the team found was that the values seemed to be off by a factor
 of 1000. Upon inspection one of the teammates found that there were inconsistent units being used in the program.
-Once that was corrected gains were reimplemented and tuned.
+Once that was corrected gains were reimplemented. The new gain matrix showed [-0.7,-0.2,-0.03,-0.2]
+
+<a href = "https://drive.google.com/file/d/1uJaXUN2qS7n4puEiOx6P9G5jeTDpZMB-/view?usp=sharing">Lab09 Tuning Attempt 1</a>
+
+From this video you can see that the system is now responding correctly to the ball rolling around the board but at the wrong magnitude. The team, after some discussion with other teams in office hours found
+that loosening the joint connecting the push rod to the motor arm decreased stiction in the system and improved motor response sensitivity. Further tuning
+was done with the loosened joint. New tuned values were found [K1,K2,K3,K4]
 
 Here is a video of the final system
 
