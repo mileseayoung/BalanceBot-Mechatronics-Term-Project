@@ -87,11 +87,11 @@ pinyp = Pin(Pin.cpu.A6)
 pinym = Pin(Pin.cpu.A0)
 # Define platform dimensions
 ## Platform width
-width = 108
+width = 0.108
 ## Platform length
-length = 186
+length = 0.186
 ## Platform center coordinates
-center = [105,67]   
+center = [0.105,0.067]   
 ## Touch panel driver object
 TouchObject = TouchDriver(pinxp,pinxm,pinyp,pinym,width,length,center)
 '''   
@@ -124,15 +124,24 @@ IMU.mode(NDOF_MODE)
 # MOTOR CONTROLLER
 
 ## State-space controller gain assigned to time derivative of ball position for closed-loop feedback
-K1 = 0.0 # units N-s
+K11 = 0.02 # units N-s
 ## State-space controller gain assigned to time derivative of platform angle for closed-loop feedback
-K2 = 200 # units N-m-s
+K12 = -50 # units N-m-s
 ## State-space controller gain assigned to ball position for closed-loop feedback
-K3 = 0.0 # units N
+K13 = 0.002 # units N
 ## State-space controller gain assigned to platform angle for closed-loop feedback
-K4 = 500 #units N-m
+K14 = -100 #units N-m
 
- ## Measured internal motor resistance, units Ohms
+## State-space controller gain assigned to time derivative of ball position for closed-loop feedback
+K21 = 0.02 # units N-s
+## State-space controller gain assigned to time derivative of platform angle for closed-loop feedback
+K22 = -50 # units N-m-s
+## State-space controller gain assigned to ball position for closed-loop feedback
+K23 = 0.002 # units N
+## State-space controller gain assigned to platform angle for closed-loop feedback
+K24 = -100 #units N-m
+
+## Measured internal motor resistance, units Ohms
 resistance = 2.21
 
 ## Measured motor torque constant, units mN-m/A
@@ -142,10 +151,12 @@ Kt = 13.8
 Vdc = 12
 
 ## Closed-loop object  
-CLObject = CLDriver(K1,K2,K3,K4,resistance,Kt,Vdc)
+CLObject1 = CLDriver(K11,K12,K13,K14,resistance,Kt,Vdc)
+CLObject2 = CLDriver(K21,K22,K23,K24,resistance,Kt,Vdc)
+
 
 ## Closed-loop FSM Task
-CLTask = CLTask(CLObject,Motor1,Motor2,Encoder1,Encoder2,TouchObject,dbg=True)
+CLTask = CLTask(CLObject1,CLObject2,Motor1,Motor2,Encoder1,Encoder2,TouchObject,dbg=False)
 
 # RUN CONTROLLER FSM INDEFINITELY
 Motor1.enable()

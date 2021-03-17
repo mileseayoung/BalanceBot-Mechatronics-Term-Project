@@ -20,7 +20,7 @@ class CLTask:
     S2_control = 2
     
     
-    def __init__(self,CLObject,MotorObject1,MotorObject2,EncoderObject1,EncoderObject2,TouchPanelObject,dbg=False):
+    def __init__(self,CLObject1,CLObject2,MotorObject1,MotorObject2,EncoderObject1,EncoderObject2,TouchPanelObject,dbg=False):
         '''
         @brief      <b> </b>
         @details    ...
@@ -35,7 +35,9 @@ class CLTask:
         @param address  ...
         '''
         
-        self.CL = CLObject
+        self.CL1 = CLObject1
+        
+        self.CL2 = CLObject2
         
         self.Motor1 = MotorObject1
         
@@ -69,7 +71,7 @@ class CLTask:
         self.currTime = utime.ticks_us()
         
         ## Defines the interval after which another iteration will run in ms
-        self.interval = 75000 # Spitballing here
+        self.interval = 10000 # Spitballing here
         
         ## Defines the starting state for the run() method
         self.state = self.S0_init
@@ -135,6 +137,7 @@ class CLTask:
                 # Read touch panel to find ball position
                 self.ball_rest = self.TouchObject.read()
                 if self.dbg == True:
+                    print('phi_x: {:.2f}, phi_y: {:.2f}'.format(self.Encoder2.getAngle(),self.Encoder1.getAngle()))
                     print(str(self.ball_rest))
                 self.current_ball_pos = self.ball_rest
                 self.transitionTo(self.S1_update)
@@ -159,8 +162,8 @@ class CLTask:
                 self.theta_y_dot = self.phi_x_dot*self.angleRatio
                 self.plat_paramY = [self.theta_y,self.theta_y_dot]
                 if self.dbg == True:
-                    print('phi_y and phi_y_dot: ' + str(self.plat_paramX))
-                    print('phi_x and phi_x_dot: ' + str(self.plat_paramY))
+                    print('phi_y: {:.2f}, phi_y_dot: {:.2f}'.format(self.plat_paramX[0],self.plat_paramX[1]))
+                    print('phi_x: {:.2f}, phi_x_dot: {:.2f}'.format(self.plat_paramY[0],self.plat_paramY[1]))
                 #print([Y,Y_dot])
                 # reading Ball position
                 
@@ -177,21 +180,17 @@ class CLTask:
                     self.ball_paramY = [self.Y_ball,self.Y_ball_dot]
                     
                     if self.dbg == True:
-                        print('x and x_dot: ' + str(self.ball_paramX))
-                        print('y and y_dot: ' + str(self.ball_paramY))
-                    
-                    #self.transitionTo(self.S2_control)
-                
-                    
-                #Controller state. Where motor values are found and applied
-                #elif self.state == self.S2_control:
+                        print('x: {:.2f}, x_dot: {:.2f}'.format(self.ball_paramX[0],self.ball_paramX[1]))
+                        print('y: {:.2f}, y_dot: {:.2f}'.format(self.ball_paramY[0],self.ball_paramY[1]))
+                        
                     '''
                     In this state values are to be fed into a controller. The controller
                     will then calculate a Torque output for a motor and that will be converted to a duty
                     cycle that is then applied to the motor.
                     '''
-                    self.InputTy = self.CL.Controller(self.plat_paramX,self.ball_paramY)
-                    self.InputTx = self.CL.Controller(self.plat_paramY,self.ball_paramX)
+                    
+                    self.InputTx = self.CL1.Controller(self.plat_paramY,self.ball_paramX)
+                    self.InputTy = self.CL2.Controller(self.plat_paramX,self.ball_paramY)
                     
                 else:
                     print('Ball not detected')
@@ -204,15 +203,13 @@ class CLTask:
                 #if self.dbg == True:
                 print('Motor duty cycles: ' + str([self.Motorx_feed,self.Motory_feed]))
                 
-                self.timeArray.append(utime.ticks_diff(self.currTime,self.startTime))
-                self.dutyArray1.append(self.Motory_feed)
-                self.dutyArray2.append(self.Motorx_feed)
+                self.timeArray.append(int(utime.ticks_diff(self.currTime,self.startTime)/1000))
+                self.dutyArray1.append(int(self.Motory_feed))
+                self.dutyArray2.append(int(self.Motorx_feed))
                 
                 self.Motor2.setDuty(self.Motorx_feed)
                 self.Motor1.setDuty(self.Motory_feed)
-                #self.transitionTo(self.S1_update)
                 
-               
             # Define time after which the data collection task will commence
             self.nextTime = utime.ticks_add(self.nextTime,self.interval)
                 
