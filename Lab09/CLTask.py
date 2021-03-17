@@ -194,11 +194,11 @@ class CLTask:
                     
                 else:
                     print('Ball not detected')
-                    self.InputTy = self.CL.zero(self.plat_paramX)
-                    self.InputTx = self.CL.zero(self.plat_paramX)
+                    self.InputTy = self.CL2.zero(self.plat_paramX)
+                    self.InputTx = self.CL1.zero(self.plat_paramX)
                     
-                self.Motorx_feed = self.CL.TtoD(self.InputTy)
-                self.Motory_feed = self.CL.TtoD(self.InputTx)          
+                self.Motorx_feed = self.CL2.TtoD(self.InputTy)
+                self.Motory_feed = self.CL1.TtoD(self.InputTx)          
                 
                 #if self.dbg == True:
                 print('Motor duty cycles: ' + str([self.Motorx_feed,self.Motory_feed]))
