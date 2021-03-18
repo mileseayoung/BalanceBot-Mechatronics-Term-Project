@@ -148,11 +148,11 @@ class MCP9808:
 if __name__ == '__main__':
     # Test code
     
-    # Create I2C object using BUS 1
+    ## I2C object using BUS 1
     i2c = I2C(1)
-    # Define I2C address for MCP9808 sensor
+    ## I2C address for MCP9808 sensor
     address = 0x18
-    # Create object in class MCP9808
+    ## object of class MCP9808
     mcp = MCP9808(i2c,address)
     # Check if valid connection has been made
     mcp.check()

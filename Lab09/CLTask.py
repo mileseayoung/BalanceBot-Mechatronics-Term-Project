@@ -11,7 +11,8 @@
             is an initialization state, in which encoder angle readings are set to 
             zero and the initial ball position is recorded, and the second is an 
             update/control state, in which measurements are updated, secondary values 
-            are calculated from updated measurements, and the control loop is implemented.
+            are calculated from updated measurements, and the control loop is implemented. \n
+            Source -- https://bitbucket.org/MilesYoung/lab-4-term-project/src/master/Lab09/CLTask.py
 """
 
 import utime
@@ -85,7 +86,7 @@ class CLTask:
         self.rm = 0.06 # units m
         
         ## Length of platform. Used in angleRatio coversion attribute.
-        self.lp = .21 # units m
+        self.lp = 0.21 # units m
         
         ## Class-specific attribute used to convert motor/encoder angles to corresponding platform angles.
         self.angleRatio = -(self.rm/self.lp)
@@ -192,10 +193,10 @@ class CLTask:
                 # Measure motor 1 angle using encoder method to convert ticks to radians
                 # To keep axis directions consistent with our dynamic model, angle signs are inverted
                 ## The current angular position of motor 1 in radians
-                self.phi_y = -self.Encoder1.getAngle()
+                self.phi_y = self.Encoder1.getAngle()
                 # Calculate motor 1 speed using encoder method and interval scaled into seconds
                 ## The current angular speed of motor 1 in rad/s
-                self.phi_y_dot = -self.Encoder1.getSpeed(self.interval/1e6)
+                self.phi_y_dot = self.Encoder1.getSpeed(self.interval/1e6)
                 # Covert motor 1 angle and speed about y-axis to platform angle about x-axis using angleRatio attribute
                 ## The current angular position of the platform about the x-axis in rad
                 self.theta_x = self.phi_y*self.angleRatio
@@ -208,9 +209,9 @@ class CLTask:
                 # Repeat the process above for the encoder 2/motor 2 combo
                 self.Encoder2.update()
                 ## The current angular position of motor 2 in radians
-                self.phi_x = -self.Encoder2.getAngle()
+                self.phi_x = self.Encoder2.getAngle()
                 ## The current angular speed of motor 1 in rad/s
-                self.phi_x_dot = -self.Encoder2.getSpeed(self.interval/1e6)
+                self.phi_x_dot = self.Encoder2.getSpeed(self.interval/1e6)
                 ## The current angular position of the platform about the y-axis in rad
                 self.theta_y = self.phi_x*self.angleRatio
                 ## The currrent angular speed of the platform about the x-axis in rad/s
@@ -219,8 +220,8 @@ class CLTask:
                 self.plat_paramY = [self.theta_y,self.theta_y_dot]
                 # Print trace if dbg is enabled
                 if self.dbg == True:
-                    print('phi_y: {:.2f}, phi_y_dot: {:.2f}'.format(self.plat_paramX[0],self.plat_paramX[1]))
-                    print('phi_x: {:.2f}, phi_x_dot: {:.2f}'.format(self.plat_paramY[0],self.plat_paramY[1]))
+                    print('theta_x: {:.2f}, theta_x_dot: {:.2f}'.format(self.plat_paramX[0],self.plat_paramX[1]))
+                    print('theta_y: {:.2f}, theta_y_dot: {:.2f}'.format(self.plat_paramY[0],self.plat_paramY[1]))
 
                 # reading Ball position
                 # Update the previous ball position
@@ -252,20 +253,24 @@ class CLTask:
                     # Implementation of the control loop  
                     # Calculate torque using platform and ball parameters
                     ## Required torque for motor 1
-                    self.InputTx = self.CL1.Controller(self.plat_paramY,self.ball_paramX)
+                    self.InputTx = self.CL2.Controller(self.plat_paramY,self.ball_paramX)
                     ## Required torque for motor 2
-                    self.InputTy = self.CL2.Controller(self.plat_paramX,self.ball_paramY)
+                    self.InputTy = self.CL1.Controller(self.plat_paramX,self.ball_paramY)
                 
                 # If the ball is not detected, meaning positional measurements are meaningless, then a simpler control loop using only the platform angles is implemented
                 else:
-                    print('Ball not detected')
+                    # Print trace if dbg is enabled
+                    if self.dbg == True:
+                        print('Ball not detected')
                     # Calculate torque using only platform parameters
-                    self.InputTy = self.CL2.zero(self.plat_paramX)
-                    self.InputTx = self.CL1.zero(self.plat_paramX)
+                    self.InputTy = self.CL1.zero(self.plat_paramX)
+                    self.InputTx = self.CL2.zero(self.plat_paramX)
                 
                 # Convert torque to a duty cycle that is then applied to the motor
-                self.Motorx_feed = self.CL2.TtoD(self.InputTy)
-                self.Motory_feed = self.CL1.TtoD(self.InputTx)          
+                ## Duty cycle for motor 2
+                self.Motorx_feed = self.CL2.TtoD(self.InputTx)
+                ## Duty cycle for motor 1
+                self.Motory_feed = self.CL1.TtoD(self.InputTy)          
                 # Print trace if dbg is enabled
                 if self.dbg == True:
                     print('Motor duty cycles: ' + str([self.Motorx_feed,self.Motory_feed]))

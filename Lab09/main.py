@@ -2,11 +2,12 @@
 """
 Created on Wed Mar 10 14:11:55 2021
 
-@file       BalanceBot.py
+@file       main.py
 @author     Miles Young, Craig Kimball
 @date       03/10/2021
 @brief      <b> Balancing Platform Main Controller </b> \n
-@details    This main script contains the controller programming for the balance bot system.
+@details    This main script contains the controller programming for the balance bot system. \n
+            Source -- https://bitbucket.org/MilesYoung/lab-4-term-project/src/master/Lab09/main.py
 """
 
 from pyb import Pin
@@ -100,21 +101,21 @@ TouchObject = TouchDriver(pinxp,pinxm,pinyp,pinym,width,length,center)
 ## State-space controller gain assigned to time derivative of ball position for closed-loop feedback
 K11 = -7 # units N-s
 ## State-space controller gain assigned to time derivative of platform angle for closed-loop feedback
-K12 = -30 # units N-m-s
+K12 = -15 # units N-m-s
 ## State-space controller gain assigned to ball position for closed-loop feedback
 K13 = -.7 # units N
 ## State-space controller gain assigned to platform angle for closed-loop feedback
-K14 = -500 # units N-m
+K14 = -700 # units N-m
 
 # Motor 2
 ## State-space controller gain assigned to time derivative of ball position for closed-loop feedback
 K21 = -4 # units N-s
 ## State-space controller gain assigned to time derivative of platform angle for closed-loop feedback
-K22 = -170 # units N-m-s
+K22 = -20 # units N-m-s
 ## State-space controller gain assigned to ball position for closed-loop feedback
 K23 = -.3 # units N
 ## State-space controller gain assigned to platform angle for closed-loop feedback
-K24 = -2500# units N-m
+K24 = -1200# units N-m
 
 ## Measured internal motor resistance, units Ohms
 resistance = 2.21

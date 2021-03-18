@@ -11,7 +11,7 @@
                 This external interrupt prevents damage to the motor by disabling 
                 and setting the duty cycle to zero if sufficiently high current 
                 is detected.\n
-                Sourcecode: https://bitbucket.org/MilesYoung/me305_me405_labs/src/master/Lab%207/MotorDriver.py
+                Source -- https://bitbucket.org/MilesYoung/lab-4-term-project/src/master/Lab09/MotorDriver.py
 """
 
 import pyb
@@ -99,6 +99,9 @@ class MotorDriver:
     def setDuty(self,duty):
         '''
         @brief          <b> Set Motor Duty Cycle </b>
+        @details        Sets the motor duty cycle according to user input. For forward (CCW) motion when the duty is positive, the duty is assigned 
+                        to channel 1. For reverse (CW) motion when duty is negatvive, the duty is assigned to channel 2. Duty is clamped between 
+                        100 and -100 percent.
         @param duty     The desired duty cycle, either positive for forward movement or negative for reverse movement
         '''
         
@@ -129,7 +132,7 @@ class MotorDriver:
     def faultInterrupt(self,faultPin):
         '''
         @brief          <b> Fault Pin External Interrupt</b>
-        @Details        External interrupt method which is triggered when the motor H-bridge fault pin goes low.
+        @details        External interrupt method which is triggered when the motor H-bridge fault pin goes low.
         @param faultPin The pin on the hardware which is used to trigger the external interrupt method.
         '''
         

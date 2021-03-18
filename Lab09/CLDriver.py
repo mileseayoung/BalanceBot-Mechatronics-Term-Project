@@ -10,7 +10,8 @@
             of the motor used to actuate the system. It has two methods: one which 
             uses a feedback equation to determine the torque required from a motor 
             depending on measured parameters, and one which converts torque into duty 
-            cycle that can be directly interpreted by a motor driver.
+            cycle that can be directly interpreted by a motor driver.\n
+            Source -- https://bitbucket.org/MilesYoung/lab-4-term-project/src/master/Lab09/CLDriver.py
 """
 
 class CLDriver:

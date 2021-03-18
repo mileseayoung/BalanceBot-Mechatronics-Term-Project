@@ -45,7 +45,7 @@ with micropython. Source:https://github.com/micropython-IMU/micropython-bno055
 
 @section Controller_sec Controller
 This system utilizes a Closed loop Controller to balance the ball on the platform.
-a screenchot of a visual representaiton of the controller is given below.
+a screenchot of a visual representation of the controller is given below.
 
 @image html Lab06_model.png
 

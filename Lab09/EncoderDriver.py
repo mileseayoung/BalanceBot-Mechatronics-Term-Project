@@ -13,7 +13,7 @@ Created on Tue Nov 24 00:21:08 2020
                     the position, returning the difference between previous and 
                     current positions. Updates include getAngle(), getSpeed(), and 
                     tick2rad() methods. tick2rad() replaces the tick2deg() method.\n
-                    Sourcecode: https://bitbucket.org/MilesYoung/me305_me405_labs/src/master/Lab%207/MotorEncoder.py
+                    Source -- https://bitbucket.org/MilesYoung/lab-4-term-project/src/master/Lab09/EncoderDriver.py
 """
 
 import pyb

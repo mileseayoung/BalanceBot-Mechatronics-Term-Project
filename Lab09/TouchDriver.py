@@ -14,7 +14,8 @@
             of the point of contact on the panel from the center coordinates; 
             zscan() determines whether an object is in contact with the panel; and 
             read() scans all three consecutively and returns a tuple containing 
-            their readings. Source Code: https://bitbucket.org/MilesYoung/lab-4-term-project/src/master/Lab09/TouchDriver.py
+            their readings.\n
+            Source -- https://bitbucket.org/MilesYoung/lab-4-term-project/src/master/Lab09/TouchDriver.py
 """
 
 from pyb import Pin, ADC
@@ -177,11 +178,11 @@ class TouchDriver:
                             methods to create and returna tuple containing all 
                             three positional measurements.
         @return position    A tuple containing the outputs of xscan(), yscan(), 
-                            and zscan() in the following order: [xpos, ypos, zflag ]
+                            and zscan() in the following order: (zflag, xpos, ypos)
         '''
         
         # Scan x, y, and z into a position tuple
-        position = [self.zScan(),self.xScan(),self.yScan()]
+        position = (self.zScan(),self.xScan(),self.yScan())
         
         return position
                             
@@ -190,46 +191,62 @@ class TouchDriver:
 if __name__ == "__main__":
         
     # Create pin objects
+    ## Positive x-direction pin object
     pinxp = Pin(Pin.cpu.A7)
+    ## Negative x-direction pin object
     pinxm = Pin(Pin.cpu.A1)
+    ## Positive y-direction pin object
     pinyp = Pin(Pin.cpu.A6)
+    ## Negative y-direction pin object
     pinym = Pin(Pin.cpu.A0)
     
     # Define platform dimensions
+    ## Width of the touch plate (y-direction)
     width = 0.108
+    ## Length of the touch plate (x-direction)
     length = 0.186
+    ## Coordinates of the center of the plate
     center = [0.105,0.067]
     
-    # Create touch panel driver object
+    ## Touch panel driver object
     touchObject = TouchDriver(pinxp,pinxm,pinyp,pinym,width,length,center)
     
     # Test scanning methods and observe timing
     # Test zScan()
+    ## The time in microseconds directly before method starts
     startTime = utime.ticks_us()
+    ## Test output of zScan() method
     zTest = touchObject.zScan()
+    ## The time in microseconds after method ends
     endTime = utime.ticks_us()
     print('Time: {:}, z-state: {:}'.format(utime.ticks_diff(endTime,startTime),zTest))  
 
     # Test xScan()
     startTime = utime.ticks_us()
+    ## Test output of xScan() method
     xTest = touchObject.xScan()
     endTime = utime.ticks_us()
     print('Time: {:}, x-value: {:}'.format(utime.ticks_diff(endTime,startTime),xTest))
 
     # Test yScan()
     startTime = utime.ticks_us()
+    ## Test output of yScan() method
     yTest = touchObject.yScan()
     endTime = utime.ticks_us()
     print('Time: {:}, y-value: {:}'.format(utime.ticks_diff(endTime,startTime),yTest))
        
     # Test read() to find average runtime of all 3 scans
+    ## Total time for 100 read() methods to run
     timeSum = 0
     for n in range(100):
         startTime = utime.ticks_us()
+        ## Test output of read() method
         readTest = touchObject.read()
         endTime = utime.ticks_us()
+        ## The time for one single iteration of the read() method to complete
         testTime = utime.ticks_diff(endTime,startTime)
         timeSum += testTime
+    ## The average time for the read() method to complete over 100 runs
     timeAvg = timeSum/100    
     print('Average Time: {:}'.format(timeAvg))
     
